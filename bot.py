@@ -54,7 +54,6 @@ import numpy as np
 import shodan
 import ipinfo
 import pycountry
-import timezonefinder
 import reverse_geocode
 import geocoder
 from cryptography.fernet import Fernet
