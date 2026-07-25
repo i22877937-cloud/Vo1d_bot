@@ -1,5 +1,5 @@
 # ================================================================
-# OBSIDIAN OSINT BOT - ИСПРАВЛЕННЫЙ СПИСОК
+# OBSIDIAN OSINT BOT - БЕЗ OPENCV (ЗАМЕНА НА HEADLESS)
 # ================================================================
 
 python-telegram-bot==20.7
@@ -17,7 +17,7 @@ geopy==2.4.1
 folium==0.18.0
 reverse-geocode==1.6.6
 Pillow==10.4.0
-opencv-python==4.10.0.84
+opencv-python-headless==4.10.0.84
 exifread==3.0.0
 cryptography==42.0.5
 pandas==2.2.3
