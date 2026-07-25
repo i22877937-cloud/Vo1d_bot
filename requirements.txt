@@ -1,5 +1,5 @@
 # ================================================================
-# OBSIDIAN OSINT BOT - ПРОВЕРЕННЫЕ ЗАВИСИМОСТИ
+# OBSIDIAN OSINT BOT - ПОЛНЫЙ СПИСОК ЗАВИСИМОСТЕЙ
 # ================================================================
 
 # Основной фреймворк для бота
@@ -7,12 +7,12 @@ python-telegram-bot==20.7
 
 # HTTP-запросы и асинхронность
 requests==2.31.0
-aiohttp==3.9.3
+aiohttp==3.10.10
 httpx==0.27.0
 
 # Парсинг HTML
 beautifulsoup4==4.12.3
-lxml==5.1.0
+lxml==5.3.0
 html5lib==1.1
 
 # OSINT-инструменты
@@ -24,44 +24,44 @@ ipinfo==5.6.0
 
 # Геолокация и карты
 geopy==2.4.1
-folium==0.15.1
+folium==0.18.0
 reverse-geocode==1.6.6
 
 # Работа с изображениями и метаданными
-Pillow==10.2.0
-opencv-python==4.9.0.80
+Pillow==10.4.0
+opencv-python==4.10.0.84
 exifread==3.0.0
 
 # Криптография
 cryptography==42.0.5
 
 # Работа с данными
-pandas==2.2.1
+pandas==2.2.3
 numpy==1.26.4
-openpyxl==3.1.2
+openpyxl==3.1.5
 
 # Утилиты для красивого вывода
 colorama==0.4.6
 tabulate==0.9.0
-prettytable==3.10.0
-tqdm==4.66.2
+prettytable==3.12.0
+tqdm==4.66.5
 
 # Работа с базами данных
-sqlalchemy==2.0.28
+sqlalchemy==2.0.35
 
 # Работа с сетью
-urllib3==2.2.1
-certifi==2024.2.2
+urllib3==2.2.3
+certifi==2024.8.30
 charset-normalizer==3.3.2
-idna==3.6
+idna==3.10
 
 # Работа с датами
-python-dateutil==2.8.2
-pytz==2024.1
+python-dateutil==2.9.0.post0
+pytz==2024.2
 
 # Работа с JSON и YAML
-pyyaml==6.0.1
-ujson==5.9.0
+pyyaml==6.0.2
+ujson==5.10.0
 
 # Работа с архивами
 python-magic==0.4.27
