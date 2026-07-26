@@ -3708,4 +3708,4 @@ class ObsidianBot:
 # ================================================================
 if __name__ == "__main__":
     bot = ObsidianBot()
-    bot.run() так ?
+    bot.run()
