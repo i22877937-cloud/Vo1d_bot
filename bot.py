@@ -65,7 +65,7 @@ import sqlalchemy
 import openpyxl
 import pandas as pd
 import mailparser
-import python_magic
+import magic
 import phone_iso3166
 import pytz
 import datetime
