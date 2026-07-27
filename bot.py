@@ -4,7 +4,7 @@ import logging
 from telegram import Update, InputFile
 from telegram.ext import Application, CommandHandler, ContextTypes
 
-BOT_TOKEN = "ТВОЙ_ТОКЕН"
+BOT_TOKEN = "8865408617:AAEoXfGBKajejCb4gBc_-1Q8O60H6SjR-Zc"
 
 DUCKY_SCRIPT = """GUI r
 DELAY 300
